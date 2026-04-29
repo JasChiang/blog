@@ -21,8 +21,14 @@ export const defaultContentPageLayout: PageLayout = {
       component: Component.Breadcrumbs(),
       condition: (page) => page.fileData.slug !== "index",
     }),
-    Component.ArticleTitle(),
-    Component.ContentMeta(),
+    Component.ConditionalRender({
+      component: Component.ArticleTitle(),
+      condition: (page) => page.fileData.slug !== "index",
+    }),
+    Component.ConditionalRender({
+      component: Component.ContentMeta(),
+      condition: (page) => page.fileData.slug !== "index",
+    }),
     Component.TagList(),
     Component.ConditionalRender({
       component: Component.MobileOnly(Component.TableOfContents()),
@@ -33,8 +39,9 @@ export const defaultContentPageLayout: PageLayout = {
     Component.ConditionalRender({
       component: Component.RecentNotes({
         title: "最新文章",
-        limit: 10,
+        limit: 30,
         showTags: true,
+        filter: (f) => f.slug !== "index",
       }),
       condition: (page) => page.fileData.slug === "index",
     }),
@@ -52,7 +59,16 @@ export const defaultContentPageLayout: PageLayout = {
         { Component: Component.ReaderMode() },
       ],
     }),
-    Component.Explorer(),
+    Component.Explorer({
+      title: "全部文章",
+      sortFn: (a, b) => {
+        if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
+        const aDate = a.data?.dates?.published?.getTime?.() ?? a.data?.dates?.created?.getTime?.() ?? 0
+        const bDate = b.data?.dates?.published?.getTime?.() ?? b.data?.dates?.created?.getTime?.() ?? 0
+        if (aDate && bDate && aDate !== bDate) return bDate - aDate
+        return a.displayName.localeCompare(b.displayName)
+      },
+    }),
     Component.DesktopOnly(Component.TableOfContents()),
   ],
   right: [
@@ -76,7 +92,16 @@ export const defaultListPageLayout: PageLayout = {
         { Component: Component.Darkmode() },
       ],
     }),
-    Component.Explorer(),
+    Component.Explorer({
+      title: "全部文章",
+      sortFn: (a, b) => {
+        if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
+        const aDate = a.data?.dates?.published?.getTime?.() ?? a.data?.dates?.created?.getTime?.() ?? 0
+        const bDate = b.data?.dates?.published?.getTime?.() ?? b.data?.dates?.created?.getTime?.() ?? 0
+        if (aDate && bDate && aDate !== bDate) return bDate - aDate
+        return a.displayName.localeCompare(b.displayName)
+      },
+    }),
   ],
   right: [],
 }
