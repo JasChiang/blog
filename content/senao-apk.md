@@ -1,6 +1,6 @@
 ---
 title: 用 Python 監控電商 App 首頁影音版位
-date: 2026-04-29
+date: 2026-04-01
 description: 公司電商 App 的首頁影片輪播沒有上下架通知，我用 Claude Code 逆向 APK 找出 API 呼叫方式，然後寫了一支 Python 腳本搭配 GitHub Actions 每天自動檢查，有異常就寄 Gmail。
 tags:
   - dev

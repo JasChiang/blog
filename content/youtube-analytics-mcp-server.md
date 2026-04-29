@@ -1,6 +1,6 @@
 ---
 title: 用 MCP 把 YouTube Analytics 接進 Claude，順便解決 API 配額問題
-date: 2026-04-29
+date: 2026-04-24
 description: 自己做了一個 YouTube Analytics MCP Server，把 YouTube Data API 與 Analytics API 包成 Claude 可以直接呼叫的工具，並用 GitHub Gist 快取來節省每日 10,000 點配額。
 tags:
   - dev

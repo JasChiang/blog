@@ -1,6 +1,6 @@
 ---
 title: 幫巴哈姆特 BBS 換上白底黑字，一個 UserScript 搞定
-date: 2026-04-29
+date: 2026-01-21
 description: 用一支 Greasemonkey UserScript 把巴哈姆特 BBS 的黑底彩色字主題改成白底黑字，讓習慣亮色系介面的人也能舒適閱讀。
 tags:
   - dev

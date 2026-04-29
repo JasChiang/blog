@@ -1,6 +1,6 @@
 ---
 title: 把文章生產線塞進一個工作台，article-suite 開發記
-date: 2026-04-29
+date: 2026-04-28
 description: 從一個「丟 YouTube 連結幫我寫文章」的小工具，一路長成含生成、編輯、配圖、發布、成效追蹤的完整內容工作台，記錄這段 vibe coding 的演進過程。
 tags:
   - ai-practice

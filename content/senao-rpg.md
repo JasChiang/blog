@@ -1,6 +1,6 @@
 ---
 title: 用 Godot 4 做一個行銷用的 RPG 遊戲
-date: 2026-04-29
+date: 2026-04-17
 description: 把公司吉祥物做成 RPG 主角、熱銷商品變成裝備，記錄這個行銷小遊戲從零到 GitHub Pages 自動部署的開發過程。
 tags:
   - dev

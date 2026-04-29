@@ -1,6 +1,6 @@
 ---
 title: 用 MCP 讓 AI 幫你逛巴哈姆特 BBS，baha-chat 開發紀錄
-date: 2026-04-29
+date: 2026-04-24
 description: 把巴哈姆特 BBS 接進 MCP，讓 Claude 直接操作終端機介面，從登入、瀏覽到整理討論串都能一指搞定。
 tags:
   - dev

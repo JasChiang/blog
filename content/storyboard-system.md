@@ -1,6 +1,6 @@
 ---
 title: 用 AI 做分鏡，從腳本到剪輯全自動，storyboard-system 開發紀錄
-date: 2026-04-29
+date: 2026-04-21
 description: 記錄我用 Vibe Coding 打造 AI 驅動分鏡系統的過程，從輸入需求到生成腳本、圖片、影片，再到 Blender 自動剪輯，整條管線都在這個工具裡。
 tags:
   - vibe-coding

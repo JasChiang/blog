@@ -1,6 +1,6 @@
 ---
 title: 用 AI 幫文章找缺少的內部連結，從零打造一個 SEO 內鏈分析工具
-date: 2026-04-29
+date: 2026-01-20
 description: 紀錄用 vibe coding 方式從零打造一個結合 GA4、GSC 與 LLM 的內部連結分析工具，自動找出文章缺少哪些內鏈、並推薦可以連結的站內頁面。
 tags:
   - dev

@@ -1,6 +1,6 @@
 ---
 title: 用 Claude Code 在一天內做出 YouTube Analytics MCP，然後發現它不夠用
-date: 2026-04-29
+date: 2026-01-06
 description: 2026 年初，我用 Claude Code 快速做了第一版 YouTube Analytics MCP server，能查影片資料、跑 Analytics 查詢，但很快撞到配額問題與本機限制，這段過程讓我理解了「能跑」跟「好用」之間的距離。
 tags:
   - dev

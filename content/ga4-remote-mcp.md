@@ -1,6 +1,6 @@
 ---
 title: 從 GA4 橋接器到多來源分析 MCP，ga4-remote-mcp 的演進
-date: 2026-04-29
+date: 2026-04-17
 description: 從一個「把 GA4 接進 Claude」的小 PoC，十天內長成支援 GA4、GSC、SEO helper、站內資料的雙模式 MCP server，記錄幾個關鍵的技術決策。
 tags:
   - dev

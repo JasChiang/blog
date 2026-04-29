@@ -1,6 +1,6 @@
 ---
 title: 用 Gemini + Nano Banana 做一個 AI 圖片生成工具
-date: 2026-04-29
+date: 2026-01-07
 description: BananaContext 是我用 vibe coding 做的 AI 圖片生成 side project，串接 Gemini 2.5 Flash 做智能 grounding，再用 Nano Banana Pro 生圖，順手把開發過程記下來。
 tags:
   - dev

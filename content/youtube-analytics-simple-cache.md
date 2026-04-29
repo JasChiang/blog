@@ -1,6 +1,6 @@
 ---
 title: 用 GitHub Gist 當快取，解決 YouTube API 配額焦慮
-date: 2026-04-29
+date: 2026-01-07
 description: 打造一個每天只跑一次的 GitHub Actions workflow，把頻道影片清單存進 Gist，讓前端搜尋不再消耗 YouTube API 配額。
 tags:
   - dev

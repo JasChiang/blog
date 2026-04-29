@@ -1,6 +1,6 @@
 ---
 title: 用 Claude Code 逆向工程公司後台，打通 AI 發文流程
-date: 2026-04-29
+date: 2026-01-16
 description: 行銷人的 vibe coding 實錄，怎麼讓 Claude Code 幫我逆向工程公司內容後台，做出一個自動發布工具。
 tags:
   - dev

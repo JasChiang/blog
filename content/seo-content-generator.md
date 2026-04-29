@@ -1,6 +1,6 @@
 ---
 title: 用 AI 自動找 SEO 題目、生文章，一個內部工具的開發紀錄
-date: 2026-04-29
+date: 2026-01-19
 description: 把 Google Search Console 和 Analytics 資料接進來，讓 AI 自動找出值得寫的關鍵字並生成草稿，記錄這個內部 SEO 工具的開發過程與技術選擇。
 tags:
   - dev
