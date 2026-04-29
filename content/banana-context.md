@@ -1,0 +1,98 @@
+---
+title: 用 Gemini + Nano Banana 做一個 AI 圖片生成工具
+date: 2026-04-29
+description: BananaContext 是我用 vibe coding 做的 AI 圖片生成 side project，串接 Gemini 2.5 Flash 做智能 grounding，再用 Nano Banana Pro 生圖，順手把開發過程記下來。
+tags:
+  - dev
+  - ai-practice
+  - vibe-coding
+image: attachments/banana-context-hero.png
+draft: false
+---
+
+![BananaContext hero](attachments/banana-context-hero.png)
+
+> [!info] 本文由來
+> 這篇是我整理 BananaContext 這個 side project 的開發紀錄，由 Claude 協助結構化成文章後審稿發布。
+>
+> 原始開發始於 2024 年底，持續迭代至 2025 年。
+>
+> 文章開頭的概念圖是用 **Codex CLI 內建的 image_gen 工具**生成。
+
+## 起因
+
+在用各種 AI 圖片生成服務的過程中，有一個痛點一直困擾著我，輸入提示詞時要自己判斷「這個需求需不需要搜尋最新資料？」，然後手動切換 grounding 開關。這個操作步驟很煩，而且常常忘記。
+
+另一個問題是，我想在生圖時傳入多張參考圖片，但大部分工具支援有限，或是介面很難用。
+
+所以我就做了 **BananaContext**，一個把 Gemini 2.5 Flash 的智能判斷 + Nano Banana Pro 的圖片生成能力結合在一起的 web 工具。
+
+## 主要功能
+
+### 智能 Grounding 自動判斷
+
+核心設計是讓使用者什麼都不用管，直接輸入提示詞送出就好。
+
+系統在收到提示詞之後，會先交給 **Gemini 2.5 Flash** 分析，它會自動判斷這個請求是否需要搜尋最新資訊。需要的話就觸發 Google Search Grounding，把搜尋結果轉換成視覺化描述再交給 Nano Banana 生圖，不需要的話就直接生圖。整個流程對使用者完全透明。
+
+除了 Google Search，也支援餵 YouTube URL 或任意網址給 Gemini 去解析，讓圖片生成可以帶入特定頁面的上下文。
+
+### 多圖參考上傳
+
+支援同時上傳最多 **14 張**參考圖片，每張限 5MB，介面是拖放式，操作起來蠻順暢的。
+
+### 風格模板
+
+內建 5 種預設風格，動漫、寫實攝影、水彩、賽博龐克、油畫，選好之後風格描述詞會自動附加到提示詞後面，不用自己寫一堆風格關鍵字。也可以自訂風格模板存成 `.txt` 放到 `style-templates/` 資料夾。
+
+### 費用透明化
+
+每次生圖完都會顯示這次用了多少錢，文字 token 費用和圖片輸出費用分開列，這對管控 API 成本蠻有幫助的，不會默默燒錢才發現。
+
+### SSE 即時串流
+
+用 **Server-Sent Events** 做進度更新，生圖過程中可以看到目前跑到哪個階段，比 loading 轉圈好多了。
+
+## 開發過程
+
+這個 project 基本上是純 vibe coding 的產物，大量用 Claude 和 Codex 寫程式，自己主要做架構決策和測試。
+
+開發過程中遇到幾個有趣的問題值得記一下。
+
+**行動端背景斷線問題**是最麻煩的。手機瀏覽器切換 app 之後 SSE 連線會斷掉，生圖結果就不見了。後來改成輪詢 + 任務隊列架構，伺服器端把任務排隊跑，前端定期去問結果，切 app 再回來一樣可以看到。這個 PR 是 Claude 跑的，解法乾淨很多。
+
+另外是 **Gemini 3 Pro Image Preview 模型設定的問題**，一度不小心改掉 model ID 讓圖片生成一直回空，debug 了一段時間，最後用 Codex 修的。
+
+初期版本需要使用者手動勾選「使用 Grounding」，v2.0 之後直接拿掉這個開關，改成全自動判斷。
+
+## 技術選擇
+
+### 後端
+
+- **Express.js** + TypeScript，架構簡單不複雜
+- **OpenAI SDK** 用來呼叫 OpenRouter API，因為 OpenRouter 相容 OpenAI 介面
+- **Multer** 處理多圖上傳
+- SSE 用 Node.js 原生支援做就好，不需要額外套件
+
+### 前端
+
+- **React** + **Vite** + TypeScript
+- 樣式全用 CSS3，沒有引入 UI library，保持輕量
+
+### API 服務
+
+- **OpenRouter** 作為 API 閘道，統一管理模型切換和計費
+- **Nano Banana Pro** 負責圖片生成（透過 OpenRouter 呼叫）
+- **Google Gemini 2.5 Flash** 負責智能 grounding 判斷，搭配 Google Search 工具
+
+這個組合的好處是 Gemini 的 grounding 能力很強，搜尋結果品質不錯，而且 Nano Banana 的圖片品質在這個價位段蠻有競爭力的。
+
+## 心得
+
+TODO 補上
+
+## 結語
+
+BananaContext 目前是個 private repo 的 side project，主要是自己在用，不過整個 vibe coding 的流程很順，從想法到可用工具大概兩三天就跑起來了。
+
+如果你也對 AI 圖片生成工具感興趣，或是想試試看把 Gemini grounding 嵌進自己的工具流，可以參考這個架構思路，Gemini 的自動判斷能力確實省了不少手動切換的麻煩。

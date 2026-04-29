@@ -41,6 +41,8 @@ image: attachments/ai-video-writer-hero-v12.png
 - **Files API**：非公開影片就用 yt-dlp 下載後上傳給 Gemini 分析，之後要重新生成的話會直接用已上傳的檔案，不用再花時間下載和上傳
 - **自動截圖**：Gemini 生成文章的同時會推薦「這個時間點的畫面適合當配圖」，再透過 FFmpeg 自動擷取
 
+這裡有個細節值得記一下。Files API 的設計是「同一支影片只需要上傳一次」，後端會先用 videoId 查找 Gemini 上有沒有既有檔案，有的話直接重用，省掉下載和上傳的時間。這個快取邏輯是 Claude Code 在初期架構建議裡提的，當時沒特別意識到，後來做安全性審查的時候才發現這個設計有個副作用（後面會提到）。
+
 文章生成之後我還需要發到 Notion，這部分是用 **Codex** 幫我寫的——我描述完需求，它就把 Notion API 的串接搞定了。
 
 ### 中期：加上頻道分析儀表板
@@ -49,6 +51,8 @@ image: attachments/ai-video-writer-hero-v12.png
 
 這裡踩了一個坑：YouTube Data API 的搜尋功能配額消耗很大，用沒幾次每日額度就見底了。後來的解法是把影片清單存到 GitHub Gist 當快取，搭配 GitHub Actions 定時更新——這個優化方向其實是 Claude Code 在幫我做 code review 的時候建議的。
 
+Gist 快取這個方案聽起來有點繞，但邏輯很清楚：頻道的影片清單不需要即時更新，每天同步一次就夠了；與其每次開頁面都呼叫 YouTube API，不如把結果存在 Gist，要查的時候直接讀靜態 JSON，配額消耗降到幾乎為零。我這種對基礎設施設計不熟的人，大概自己不太會想到這個方向，這也算是 AI 協作開發裡「它比你想得更遠」的一個例子。
+
 ### 後期：多模型 AI 分析，Claude Code 全力介入
 
 到了這個階段，我想讓工具不只是顯示數據，還要能用 AI 分析數據、給出頻道成長建議。而且不想只綁定 Gemini 一個模型，希望能切換 Claude、GPT、Grok 來比較不同模型的分析角度。
@@ -56,6 +60,10 @@ image: attachments/ai-video-writer-hero-v12.png
 這是整個專案中 vibe coding 最密集的時期。我大量使用 **Claude Code**，開發流程基本上就是：我描述需求 → Claude Code 自己開一個分支寫程式 → 我看過覺得可以就合併。它在這段時間自動建了好幾個分支，分別處理多模型分析、快取優化、Notion 修正等功能。
 
 不過功能越疊越多，分支也越來越亂。最後花了一輪時間整理，把所有分支合併到一起，用 **Gemini CLI** 重寫了所有文件，把程式碼結構也做了一次整理。
+
+合併完以後有一個插曲。`feature/ai-analytics` 合進 main 之後，GitHub Actions 的定時快取更新突然壞掉了，跑出一堆 `SERVER_MISCONFIGURED` 的錯誤。查了一下才發現，合併進來的分支有新增 JWT 認證 middleware，GitHub Actions 啟動後端伺服器時沒有傳 `JWT_SECRET` 環境變數，所以 middleware 一啟動就掛了，所有 API 呼叫全部回 500。更正確的說，是兩個問題疊在一起，一是 workflow 缺少 JWT_SECRET，二是腳本呼叫 API 時也沒有帶 Bearer token。Claude Code 後來把這兩個問題一起修掉，讓 GitHub Actions 腳本自己用 JWT_SECRET 簽一個 session token 再打 API。
+
+說到安全性，這個 JWT 認證是後來加的，不是一開始就有的。工具做到一定程度，部署到 Render 之後，我才意識到整個後端完全沒有保護，任何人只要知道網址就可以直接呼叫所有 API 端點，不需要登入也不需要任何憑證。我把這個問題丟給 Claude Code，它做了一次完整的安全性審查，列出了九個不同嚴重程度的漏洞，包含 Gemini 已上傳的私有影片可能被重用分析、filePath 路徑穿越風險、Notion API token 可能被 fallback 到環境變數等。最後用一套 JWT 加頻道 ID 白名單的機制把所有問題一起解掉。這件事讓我體認到，vibe coding 做工具很快，但安全性這個環節不能省，還是得有人去想「如果這個端點被亂打會怎樣」。
 
 ## 成果
 
