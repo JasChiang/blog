@@ -13,11 +13,11 @@ draft: false
 ![ga4-remote-mcp hero](attachments/ga4-remote-mcp-hero.png)
 
 > [!info] 本文由來
-> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
+> 這篇是 Claude Code 依照 commit 歷史與 session 紀錄整理的開發回顧，由作者對照原始碼審稿校正後發布。
 >
 > 整理依據，
 >
-> - GitHub repo, [JasChiang/ga4-remote-mcp](https://github.com/JasChiang/ga4-remote-mcp) 的 README（若有）、commit 歷史與原始碼
+> - GitHub repo, [JasChiang/ga4-remote-mcp](https://github.com/JasChiang/ga4-remote-mcp) 的 README、commit 歷史與原始碼
 > - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-claude-----ga4-remote-mcp/`
 > - Codex CLI session 紀錄, `~/.codex/sessions/` 中與 ga4-remote-mcp 相關的幾個 session（2026-03-31、2026-04-10、2026-04-13）
 >
@@ -35,7 +35,7 @@ draft: false
 
 ## 主要功能
 
-現在的 server 有以下幾組 MCP tools：
+現在的 server 有以下幾組 MCP tools，
 
 **GA4 分析**，基礎報表、realtime、漏斗分析、segment 占比與 segment 內維度排行。
 
@@ -55,7 +55,7 @@ draft: false
 
 **同一天的第二波**，in-memory store 很快就暴露問題，Render 上的服務一重啟，所有人的 token 就消失，要重新 OAuth。於是立刻接入 Supabase/Postgres，加上 refresh token，再修掉 Google token refresh 後只更新記憶體、沒有回寫 store 的 bug。
 
-**第三階段（2026-03-31）**，資料面擴充，先加 GSC，再加 life SEO helper 工具。同一天也做了一件架構上的決定，把 remote HTTP 與 local stdio 雙模式同時支援。這讓 repo 從「部署到 Render 才能用」變成「本機也能直接掛」，開發與測試的摩擦低很多。
+**第三階段（2026-03-30 下午 + 2026-03-31）**，資料面擴充。GSC 其實是在 3/30 同一天就加進去的，緊接在 Supabase 那兩個 commit 之後（GA4 segment → Supabase + refresh token → token sync → GSC，全在 3/30 下午完成）。life SEO helper 和 stdio 雙模式都是 3/31 加的。這讓 repo 從「部署到 Render 才能用」變成「本機也能直接掛」，開發與測試的摩擦低很多。
 
 **第四階段（2026-04-09）**，一整串的穩定性修復。這段歷史從 commit 訊息就能還原，Postgres 初始化慢 → 服務啟動崩潰 → 加 connection timeout → 加重試邏輯 → 改成背景持續重試 → 加 `/debug/tcp` 診斷端點，把問題一層一層剝開。
 
@@ -71,7 +71,7 @@ Remote HTTP 模式的 OAuth 有兩層，不是一層。
 
 第二層是 **這台 server 對 Google 的認證**，拿到 Claude 打進來的 request 後，server 從 store 取出對應的 Google token，再去打 GA4 / GSC API。
 
-整個 callback 路徑是，Claude 打 `/oauth/authorize` → server 驗完 PKCE 後 redirect 去 Google OAuth consent → Google 回來 `/oauth/google/callback` → server 建立本地 authorization code → Claude 用 `POST /oauth/token` 換 MCP token → 之後每次請求帶 Bearer token。
+整個 callback 路徑是，Claude 打 `/oauth/authorize` → server 驗 client_id 與 redirect_uri，把 PKCE challenge 存起來後 redirect 去 Google OAuth consent → Google 回來 `/oauth/google/callback` → server 建立本地 authorization code → Claude 用 `POST /oauth/token` 換 MCP token（此時才驗 PKCE code_verifier）→ 之後每次請求帶 Bearer token。
 
 這段邏輯集中在 `src/routes/oauth.ts`，是整個 repo 裡最需要細心維護的地方。OAuth 兩層的型別定義（`src/types/auth.ts`）跟加解密 helper（`src/lib/crypto.ts`）兩個檔案是直接從 [[youtube-analytics-mcp-server|youtube-analytics-mcp-server]] 那邊拿過來的（兩個 repo 同一份 SHA），因為兩個 server 走同一套 OAuth bridge 模式，連底層的 token 加密、refresh token 流程都一樣，沒必要重寫。
 
@@ -85,7 +85,7 @@ Remote HTTP 多了 server 這層，開發維護成本比較高，但可以讓多
 
 ### Store 設計
 
-Token store 有兩個 driver：memory 跟 postgres。沒有設 `SUPABASE_DB_URL` 的時候用 memory，適合本機開發；設了就自動切到 Postgres，適合 remote 部署。
+Token store 有兩個 driver，memory 跟 postgres。沒有設 `SUPABASE_DB_URL` 的時候用 memory，適合本機開發，設了就自動切到 Postgres，適合 remote 部署。
 
 `/healthz` 的設計也連動到這裡，它反映的是 store 的 ready 狀態，而不是單純 HTTP 200。這讓 Render 的 health check 能真正偵測到 DB 連線問題，而不是假裝沒事。
 
