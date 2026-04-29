@@ -37,7 +37,7 @@ draft: false
 
 **生成新文章**，支援四種素材來源，YouTube 公開或非公開影片、一般網址、純主題文字、上傳 PDF 或圖片檔。Gemini 讀完素材後產出完整 HTML 文章，並一併給三個 SEO 標題備選和 meta description。影片來源還能讓 AI 規劃截圖時間點，用 ffmpeg 截出圖片插入文章。文章配圖走 fal.ai SDK（`@fal-ai/client`），可在 **`nano-banana-pro`** 跟 **`gpt-image-2`** 之間切換，預設用 nano-banana-pro，會先讓 LLM 根據文章內容生提示詞再送去生圖，縮圖跟內文圖都能一次生好。
 
-**編輯既有文章**，輸入 CMS 文章 ID 就能把文章拉回來，在 CKEditor 5 裡修改，修完再推回 CMS。插入商品卡的功能也在這裡，貼上商品或分類頁 URL，程式抓資料後 AI 生成卡片文案，選好插入位置，預覽確認後一鍵寫入文章並同步更新 CMS。商品卡連結會自動帶上自製追蹤 query param，讓成效資料可以歸因到哪篇文章帶來的導流。
+**編輯既有文章**，輸入 CMS 文章 ID 就能把文章拉回來，在 CKEditor 4.8 裡修改，修完再推回 CMS。插入商品卡的功能也在這裡，貼上商品或分類頁 URL，程式抓資料後 AI 生成卡片文案，選好插入位置，預覽確認後一鍵寫入文章並同步更新 CMS。商品卡連結會自動帶上自製追蹤 query param，讓成效資料可以歸因到哪篇文章帶來的導流。
 
 **成效儀表板**，整合 GA4 和 Google Search Console 的資料，把過去 N 天流量最高的文章列出來，可以看曝光、點擊、CTR、工作階段等指標。每週一 GitHub Actions 會自動掃一次高流量文章裡的商品連結，找到失效的就把那列標紅，點一下就跳進編輯介面，直接換掉壞掉的連結。
 
@@ -51,13 +51,13 @@ draft: false
 
 **1 月 19–27 日，快速堆功能**，加了 AEO HTML 模板（試驗能不能讓文章更容易被 LLM 引用）、內文圖片生成、OpenRouter 輔助生圖提示詞、還有草稿自動存取。草稿這件事其實踩過坑，最初生成後沒有存稿，重新整理一次所有東西就不見了，後來改成每次產文都自動存 localStorage，重開頁面自動還原。
 
-**2 月初，品質迭代**，這段時間集中改提示詞品質，包括防止 AI 捏造 YouTube 影片 ID（用 Levenshtein 距離自動修正）、禁止模型補充無根據的資料、清除模板中的 emoji 以免影響格式。另外加了 Google Search Grounding 讓純主題模式可以即時搜尋，以及 Gemini Thinking Mode 作為可選開關。
+**2 月初，品質迭代**，這段時間集中改提示詞品質，包括防止 AI 捏造 YouTube 影片 ID（比對使用者給的參考網址，不在清單內的 ID 直接替換或移除）、禁止模型補充無根據的資料、清除模板中的 emoji 以免影響格式。另外加了 Google Search Grounding 讓純主題模式可以即時搜尋，以及 Gemini Thinking Mode 作為可選開關。
 
 **2 月中下旬**，圖片 URL 外部連結會失效是個實際問題，改成後端把圖片 URL 轉存為本地靜態檔，開草稿時也會自動重新快取，發布時直接上傳 CDN。
 
 **3 月，商品卡系統**，這是整個專案最重要的一次建設週。從零建出插入商品卡的完整工作流程，包含從實際文章 HTML 動態解析結構地圖、預覽確認步驟、以 HTML 註解標記識別多張卡片、以及連結失效掃描 + Gmail 通知的 GitHub Actions。
 
-**4 月，UI 整合與細節打磨**，重新設計 ArticleWorkspace 版面配置，讓操作動線更自然。加了 AEO v4 模板、Schema.org JSON-LD 自動注入（NewsArticle、FAQPage、Product、VideoObject），每條寫回 CMS 的路徑都會重新跑 schema 注入，確保前端重新套用卡片後 schema 不會掉。AI 生成卡片文案也是這個月加的，以前標題和 CTA 都是固定模板，現在讓 AI 根據文章語境調整說法。AEO v4 模板在迭代過程中有一個明顯教訓，加太多 HTML 約束規則反而讓模型「太自由」，規則越多，模型越容易在不相關的地方補東西進去，例如把 JSON-LD schema 塞進文章內文、或是在非目錄目標的標題上亂加 `scroll-margin-top`。後來的修法是 HTML 骨架規則往 v3 收，只保留 AEO 語意結構的加強，「只靠 prompt 管 HTML 邊界」本身就不夠穩，能在後端做後處理的就移到後端做。
+**4 月，UI 整合與細節打磨**，重新設計 ArticleWorkspace 版面配置，讓操作動線更自然。加了 AEO v4 模板、Schema.org JSON-LD 自動注入（NewsArticle、FAQPage、VideoObject、BreadcrumbList），每條寫回 CMS 的路徑都會重新跑 schema 注入，確保前端重新套用卡片後 schema 不會掉。AI 生成卡片文案也是這個月加的，以前標題和 CTA 都是固定模板，現在讓 AI 根據文章語境調整說法。AEO v4 模板在迭代過程中有一個明顯教訓，加太多 HTML 約束規則反而讓模型「太自由」，規則越多，模型越容易在不相關的地方補東西進去，例如把 JSON-LD schema 塞進文章內文、或是在非目錄目標的標題上亂加 `scroll-margin-top`。後來的修法是 HTML 骨架規則往 v3 收，只保留 AEO 語意結構的加強，「只靠 prompt 管 HTML 邊界」本身就不夠穩，能在後端做後處理的就移到後端做。
 
 ## 技術選擇
 
@@ -65,7 +65,7 @@ draft: false
 
 AI 部分主力是 Google Gemini（`@google/genai`），原因是它的 YouTube URL 直接輸入和 URL Context 是核心功能，Gemini 在這兩塊支援最好。圖片生成走 fal.ai，文案改寫和圖片提示詞生成走 OpenRouter，這樣可以彈性選不同模型。Gemini API 有支援多 key 輪替，達到速率上限時自動切換，實際跑 GitHub Actions 排程時很有用。
 
-HTML 編輯器用 CKEditor 5，因為所在公司的內容平台本來就在用這個格式。圖片縮放用 sharp，影片截圖用 ffmpeg + yt-dlp，Schema 驗證有自己寫測試腳本。
+HTML 編輯器用 CKEditor 4.8（自架），因為所在公司的內容平台本來就在用這個版本。圖片縮放用 sharp，影片截圖用 ffmpeg + yt-dlp，Schema 驗證有自己寫測試腳本。
 
 成效追蹤用 googleapis 套件串 GA4 和 Google Search Console。OAuth token 有做三層 fallback，本機只要設一個 `GA4_REFRESH_TOKEN` 就能跑，不用管完整的 token bundle。
 
@@ -83,7 +83,7 @@ HTML 編輯器用 CKEditor 5，因為所在公司的內容平台本來就在用�
 
 **Gemini 503 的備援，從單一呼叫到 retry + OpenRouter fallback**
 
-GitHub Actions 自動生文章的排程，pipeline 裡前後呼叫 Gemini API 四次（選題、預選商品卡、生文章、選延伸閱讀），只要任何一次碰到 503 UNAVAILABLE，整批就直接失敗。一開始 codebase 完全沒有 retry 邏輯。後來加了 exponential backoff（對 503/429 自動重試 3–5 次），加上多 key 輪替（retry 時切下一把 key）。進一步的方向是把最簡單的幾個呼叫點（純 JSON 生成，不需要 YouTube 或 urlContext 這些 Gemini 專屬 tool）改接 OpenRouter 當最後一層 fallback，這樣 Gemini 尖峰期的整批失敗率大幅下降。
+GitHub Actions 自動生文章的排程，pipeline 裡前後呼叫 Gemini API 四次（選題、預選商品卡、生文章、選延伸閱讀），只要任何一次碰到 503 UNAVAILABLE，整批就直接失敗。一開始 codebase 完全沒有 retry 邏輯。後來加了 retry 邏輯（對 503/429/500 自動重試，次數為 key 數量的兩倍，至少 5 次），加上多 key 輪替（retry 時切下一把 key，並對失敗的 key 設 cooldown）。進一步的方向是把最簡單的幾個呼叫點（純 JSON 生成，不需要 YouTube 或 urlContext 這些 Gemini 專屬 tool）改接 OpenRouter 當最後一層 fallback，這樣 Gemini 尖峰期的整批失敗率大幅下降。
 
 **GA4 環境變數命名分岔的技術債**
 
@@ -91,7 +91,9 @@ GitHub Actions 自動生文章的排程，pipeline 裡前後呼叫 Gemini API �
 
 **Proxy fetch 抓不到圖片，補了全頁截圖路徑**
 
-Proxy fetch 實作把 HTML 裡所有標籤都用 regex 替換成空格，圖片 URL 直接被丟掉，Gemini 看到的只有文字。解法是加了 Chrome headless 全頁截圖，對 `high_fidelity` 模式的每個參考 URL 都截一張 PNG，以 multimodal 方式讓 Gemini「看」頁面，圖文都能一起餵進去。這條路徑後來也發現分類頁的商品圖是 lazy load 用 `data-src` 不是 `src`，所以圖片擷取邏輯也從只抓 `src` 改成優先抓 `data-src`，才能正確拿到真實圖片 URL。
+Proxy fetch 實作把 HTML 裡所有標籤都用 regex 替換成空格，圖片 URL 直接被丟掉，Gemini 看到的只有文字。解法是加了 Chrome headless 全頁截圖，對 `high_fidelity` 模式的每個參考 URL 都截一張 PNG，以 multimodal 方式讓 Gemini「看」頁面，圖文都能一起餵進去。
+
+另一條路徑也踩到類似的問題，商品卡系統在從分類頁擷取商品圖時，發現分類頁的商品圖是 lazy load 用 `data-src` 而不是 `src`，所以圖片擷取邏輯從只抓 `src` 改成優先抓 `data-src`，才能正確拿到真實圖片 URL。
 
 **商品卡進 CKEditor 編輯模式就壞掉，從編輯器問題轉為 HTML 問題**
 

@@ -43,15 +43,15 @@ draft: false
 
 **階段二，一致性圖片生成**
 
-用 Fal AI 的 Nano Banana Pro 模型逐場生成靜態分鏡圖。支援 Image-to-Image，可以把參考圖直接帶進去做風格固定。支援 16:9、9:16、1:1 三種比例與 1K/2K/4K 解析度，批次生成並內建自動重試。
+透過 fal.ai 逐場生成靜態分鏡圖，目前主力是 GPT Image 2，另有 Nano Banana Pro 和 Seedream 5.0 Lite 可選。支援 Image-to-Image，可以把參考圖直接帶進去做風格固定。支援 16:9、9:16、1:1 三種比例與 1K/2K/4K 解析度，批次生成並內建自動重試。
 
 **階段三，AI 影片生成**
 
-目前接了兩個模型，Kling 2.6 Pro 和 Seedance 1.5 Pro，都走圖生影（Image-to-Video）確保鏡頭間的視覺延續。內建 20+ 種運鏡與動作提示詞輔助，包含 Zoom、Pan、Tilt 等常見鏡頭語言。
+目前接了兩個模型，Kling 2.6 Pro 和 Seedance 2.0，都走圖生影（Image-to-Video）確保鏡頭間的視覺延續。Kling 和 Seedance 各自也有 reference-to-video 模式，可以直接把多張角色參考圖一起送進去生影片。內建 20+ 種運鏡與動作提示詞輔助，包含 Zoom、Pan、Tilt 等常見鏡頭語言。
 
 **階段四，Gemini 分析與 Blender 匯出**
 
-這段是整個流程的尾聲。用 Gemini 2.0 Flash 分析生成的影片，自動標記每個鏡頭的最佳入點與出點，並建議轉場和調色效果。接著輸出一份 Blender 5.0 的 Python 腳本，執行後自動把所有素材組裝到 VSE（Video Sequence Editor）時間軸，加好轉場，連算圖都可以 headless 跑。
+這段是整個流程的尾聲。用 Gemini 分析生成的影片，自動標記每個鏡頭的最佳入點與出點，並建議轉場和調色效果。接著輸出一份 Blender 5.0 的 Python 腳本，執行後自動把所有素材組裝到 VSE（Video Sequence Editor）時間軸，加好轉場，連算圖都可以 headless 跑。
 
 ## 開發過程
 
@@ -77,7 +77,7 @@ GPT Image 2 有個和 nano banana pro 不一樣的參數系統，不是填 width
 
 ### 影片生成的 reference-to-video 切換
 
-影片生成一開始只有「起幀圖生影片」，就是先生靜態分鏡圖，再把圖餵給 Kling 2.6 做 image-to-video。後來接了 Seedance 2.0 和 Kling O1 的 reference-to-video 模式，差別在於可以直接把多張角色參考圖一起送進去，不需要先有一張分鏡圖，模型自己從 reference cluster 推斷視覺一致性。Seedance 2.0 最多接 9 張，Kling O1 最多 7 張。
+影片生成一開始只有「起幀圖生影片」，就是先生靜態分鏡圖，再把圖餵給 Kling 2.6 做 image-to-video。後來接了 Seedance 2.0 ref 和 Kling O1 reference-to-video 模式，差別在於可以直接把多張角色參考圖一起送進去，不需要先有一張分鏡圖，模型自己從 reference cluster 推斷視覺一致性。Seedance 2.0 的 reference 模式最多接 9 張圖片，Kling O1 最多 7 張。
 
 切換過程中我問了一句「為什麼你不是用 reference 跑？」才發現某個生成路徑根本沒走到 reference 模式。翻了程式碼才確認，reference 模式需要明確傳 `referenceImageUrls`，但當時的 UI 沒有把 scopedRefs 收集進去。
 
@@ -85,7 +85,7 @@ GPT Image 2 有個和 nano banana pro 不一樣的參數系統，不是填 width
 
 ### 一致性驗證器的加入
 
-跑了幾個真實專案之後，我發現純靠眼睛看結果是否一致太慢了，特別是批次生成十幾個鏡頭的時候。於是加了一個 `SceneConsistencyReport` 型別，每個 scene 可以掛一份機器分析報告，用 Gemini 2.0 Flash 對生成結果和原始參考圖做比對，輸出 `pass / warn / fail` 分級加差異描述。這個設計讓工程層面可以加 blocker，強迫你在出錯的鏡頭修好之前不能繼續生後面的影片。
+跑了幾個真實專案之後，我發現純靠眼睛看結果是否一致太慢了，特別是批次生成十幾個鏡頭的時候。於是加了一個 `SceneConsistencyReport` 型別，每個 scene 可以掛一份機器分析報告，用 Gemini 對生成結果和原始參考圖做比對，輸出 `pass / warn / fail` 分級加差異描述。這個設計讓工程層面可以加 blocker，強迫你在出錯的鏡頭修好之前不能繼續生後面的影片。
 
 晚期的迭代還集中在**工程品質補強**，引入 structured API error envelope、LLM usage log、API 路由統一的 error 處理。這些對 vibe-coding 出來的系統格外重要，因為 AI 生成的程式碼往往在 error handling 最隨便，要另外花力氣補。
 
@@ -99,9 +99,7 @@ GPT Image 2 有個和 nano banana pro 不一樣的參數系統，不是填 width
 
 ### 配音與配樂的接入
 
-影片生成之後，系統接了兩條音訊管線，分別走不同服務。旁白用 IndexTTS2，配樂用 ElevenLabs。兩者都是在分鏡腳本生成之後才能配，因為要對準影片時間軸。
-
-這部分跑在一個獨立的 `external/openreel-video` 子服務裡（port 5173），和主系統的 Next.js app（port 5100）分開啟動。fluent-ffmpeg 負責最後的混音合成，把旁白、配樂、原始影片素材合成為最終輸出。
+影片生成之後，系統接了兩條音訊管線，分別走不同服務。旁白用 IndexTTS2，配樂用 ElevenLabs。兩者都是在分鏡腳本生成之後才能配，因為要對準影片時間軸。音訊生成走主系統的 Next.js app（port 5100）API 路由呼叫，fluent-ffmpeg 負責最後的混音合成，把旁白、配樂、原始影片素材合成為最終輸出。`external/openreel-video` 子服務（port 5173）是分開啟動的時間軸剪輯介面，主要用在最後一步的手動精剪與匯出。
 
 ## 技術選擇
 
@@ -117,8 +115,8 @@ GPT Image 2 有個和 nano banana pro 不一樣的參數系統，不是填 width
 | AI 影片 | Fal AI (Kling / Seedance) | 目前品質與價格的平衡點 |
 | 腳本 | OpenRouter → Claude | 彈性切換模型，不綁死單一 provider |
 | 影片處理 | fluent-ffmpeg | 本機音軌合成、旁白混音 |
-| 旁白 | IndexTTS2 | 分鏡腳本生成後配音，走 openreel-video 子服務 |
-| 配樂 | ElevenLabs | 與旁白分開管線，同樣走 openreel-video |
+| 旁白 | IndexTTS2 | 分鏡腳本生成後配音，走主系統 API 呼叫 fal.ai |
+| 配樂 | ElevenLabs | 與旁白分開管線，同樣走主系統 API |
 
 LocalStorage 做持久化這件事，算是 vibe-coding 工具的典型選擇，因為部署成本為零。但資料量一大就需要考慮遷移，這個系統後來加了 SQLite 就是因為專案多了之後 localStorage 開始不夠用。
 
@@ -128,9 +126,9 @@ LocalStorage 做持久化這件事，算是 vibe-coding 工具的典型選擇，
 
 這個系統很多地方不是自己從零寫的，而是把開源社群的東西組起來再加上自己的工作流。
 
-**[Augani/openreel-video](https://github.com/Augani/openreel-video)（MIT）**，整個瀏覽器內的影片剪輯引擎是直接 bundle 在 `external/openreel-video/` 子資料夾下，當作獨立子服務啟動（port 5173）。OpenReel 自稱是「open source CapCut alternative」，120k+ 行 TypeScript，跑在純 client side，多軌時間軸、轉場、effects、音訊混音都有，比起自己刻一個剪輯 UI，直接借這套是最務實的選擇。我這邊主要把它當「最後合成階段」的編輯介面，前面的 AI 腳本/分鏡/生圖都是自己的程式跑完之後，把素材丟進 OpenReel 做最後剪輯與輸出。
+**[Augani/openreel-video](https://github.com/Augani/openreel-video)（MIT）**，整個瀏覽器內的影片剪輯引擎是直接 bundle 在 `external/openreel-video/` 子資料夾下，當作獨立子服務啟動（port 5173）。OpenReel 自稱是「open source CapCut alternative」，130k+ 行 TypeScript，跑在純 client side，多軌時間軸、轉場、effects、音訊混音都有，比起自己刻一個剪輯 UI，直接借這套是最務實的選擇。我這邊主要把它當「最後合成階段」的編輯介面，前面的 AI 腳本/分鏡/生圖都是自己的程式跑完之後，把素材丟進 OpenReel 做最後剪輯與輸出。
 
-**[Forget-C/Jellyfish](https://github.com/Forget-C/Jellyfish)**，一個一站式 AI 短劇生產工具，研究它的時候對我影響最大的是它把一致性問題拆成「全域資產庫、專案快照、跨分鏡參考圖、提示詞模板」幾層的思路。讓我意識到自己缺的不是再加一個角色庫頁面，而是場景層的 reference 治理，後來把這個思路落地成 `referencePlan` 解析器（前面 `### 一致性驗證器的加入` 段有提到）。
+**[Forget-C/Jellyfish](https://github.com/Forget-C/Jellyfish)**，一個一站式 AI 短劇生產工具，研究它的時候對我影響最大的是它把一致性問題拆成「全域資產庫、專案快照、跨分鏡參考圖、提示詞模板」幾層的思路。讓我意識到自己缺的不是再加一個角色庫頁面，而是場景層的 reference 治理，後來把這個思路落地成 `referencePlan` 解析器（前面 `### 腳本「吸引力」的前置設計化` 段有提到）。
 
 **[songguoxs/seedance-prompt-skill](https://github.com/songguoxs/seedance-prompt-skill)** 與 **[YouMind-OpenLab/awesome-seedance-2-prompts](https://github.com/YouMind-OpenLab/awesome-seedance-2-prompts)**，做 Seedance 影片提示詞時的兩個主要參考來源。前者把 Seedance 提示詞包成一個 Codex skill，後者是社群整理的 awesome list。我自己的提示詞模板大量參考這兩邊的 pattern，特別是「鏡頭運動 + 主體狀態 + 環境光線」三段式描述的順序與用詞。
 

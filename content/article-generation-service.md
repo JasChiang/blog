@@ -19,7 +19,7 @@ draft: false
 >
 > - GitHub repo, `article-generation-service`（private repo） 的 README（若有）、commit 歷史與原始碼
 > - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-Documents-GitHub-article-generation-service/`
-> - Codex CLI session 紀錄（2026-01-27，2 sessions），處理了 `htmlToMarkdown` 異步與 port 動態化，內容與 Claude session 高度重疊
+> - Codex CLI session 紀錄，主要集中在 2026-01-16（由 `ai-video-writer` 拆出這個 repo 的工作階段）；1/27 的 session 的工作目錄是 `article-suite`，不是這個 repo
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -51,9 +51,7 @@ draft: false
 
 **任務佇列的由來**，影片下載加 AI 呼叫合計可能跑 30–90 秒，同步 API 直接 timeout。第一個真正的架構決策，就是把所有「會跑很久」的工作推進 `taskQueue.js`，前端改成輪詢 `GET /api/task/:taskId`，每秒問一次，直到收到 `status: done` 才渲染結果。這個改動讓 UX 從「等到 timeout 然後白畫面」變成「有進度感的等待」。
 
-**`htmlToMarkdown` 的 async 坑**，Markdown 轉換函數一開始寫成同步，後來改成 async（加入了比較重的 HTML 解析邏輯），但有兩個地方忘了跟上。一個是 `handlePublishToNotion()` 裡沒有 `await`，結果傳給 Notion API 的是一個 Promise 物件；另一個更隱蔽，是 `useMemo` 裡直接呼叫 async 函數，React 的 `useMemo` 不支援 async 回呼，只會拿到 Promise 而不是字串。後者的修法是把 `useMemo` 改成 `useEffect` + `useState`，讓轉換結果非同步更新到 state 裡。這個 bug 本來沒有 UI 報錯，只是 Notion 那邊收到奇怪的內容，找起來花了一點時間。
-
-**Port 寫死的清查**，某次想改部署 port，才發現整個 codebase 至少有六個地方寫死了 3000 或 3001，包含 `vite.config.ts`、`index.tsx`、`serverBaseUrl.ts` 以及幾個 API service 檔案。統一補了環境變數（`VITE_PORT`、`PORT`、`VITE_API_URL`、`VITE_SERVER_BASE_URL`），`.env.example` 也同步更新，這樣換部署環境才不用到處找數字。
+**Port 寫死的清查**，整個 codebase 有六個以上地方寫死了 3000 或 3001，包含 `vite.config.ts`（port: 3000）、`index.tsx`、`serverBaseUrl.ts`、`routes/notion.js`，以及 `services/client/` 下幾個 API service 檔案。後端 server.js 用 `process.env.PORT || 3001`，前端 service 層用 `VITE_API_URL` fallback，`utils/serverBaseUrl.ts` 用 `VITE_SERVER_BASE_URL` fallback，這樣換部署環境只需要設環境變數，不用進去翻程式碼改數字。
 
 **Notion OAuth state 的處理**，OAuth 流程需要一個 state 參數防 CSRF，token 跟 state 都存在 server 記憶體，加了過期清除邏輯，避免記憶體一直長大。這是刻意不用 Redis 的折衷，因為這個服務重啟頻率低，且 Notion token 有效期夠長，用記憶體存就夠。
 
@@ -63,7 +61,7 @@ draft: false
 
 **為什麼做成 service 而不是 CLI，** 最主要的原因是使用者範圍。CLI 只有工程師用得順，但這套流程最後的使用者是內容團隊。做成有前端的服務，他們可以直接在瀏覽器輸入連結、調整參數、預覽結果、一鍵發 Notion，不需要 terminal。
 
-**前後端同一個 repo，** 用 Vite + React 跑前端（port 3000），Express 跑後端（port 3001），`npm run dev:all` 一個指令同時起兩個 process。這樣程式碼好管理，部署也可以直接 `npm run build` 把前端靜態檔產出，再讓 Express 一起 serve。Port 號統一走環境變數，不寫死在程式碼裡，換部署環境不用翻程式碼。
+**前後端同一個 repo，** 用 Vite + React 跑前端（port 3000），Express 跑後端（port 3001），`npm run dev:all` 一個指令同時起兩個 process。這樣程式碼好管理，部署也可以直接 `npm run build` 把前端靜態檔產出，再讓 Express 一起 serve。後端 port 走 `PORT` 環境變數，前端 API 端點走 `VITE_API_URL`，換部署環境只要設環境變數，不用翻程式碼。
 
 **Gemini 而不是 OpenAI，** 主要是測試下來 Gemini 2.5 Flash 處理長影片逐字稿的速度和成本都比較合適，也支援比較大的 context window，對長影片更友善。模型名稱也做成環境變數，不需要改程式碼就能切換版本。
 
@@ -75,16 +73,16 @@ draft: false
 
 ## 心得
 
-做這個專案最有趣的部分，是很多「看起來簡單」的決策背後都有具體的坑。`useMemo` 裡不能用 async 這種事，文件有寫，但實際踩到才會真的記住。Port 寫死也是，平常開發不會感覺到問題，直到要換環境才一口氣發現六個地方要改。
+做這個專案最有趣的部分，是很多「看起來簡單」的決策背後都有具體的坑。Port 寫死就是這樣，平常開發不會感覺到問題，直到要換環境才一口氣發現六個以上的地方要改。
 
 另一個收穫是，「夠用就好」也是一種架構決策。in-memory 任務佇列、記憶體存 OAuth token，這些在一般教學文章裡會被說「不夠 production ready」，但放在這個使用情境下，它們是合理的取捨，維護成本低，不需要額外的基礎設施。要升級的時候路徑也很清楚，不是走不出去的死角。
 
-用 Claude Code 做這個專案的開發輔助，體感上速度提升最明顯的是「搜尋型工作」，像是找出所有寫死 port 的地方、確認所有 async 函數的呼叫是否都有 await，這類需要全 codebase 掃描的任務，交給 AI 做比自己 grep 快很多，也比較不容易漏掉。
+用 Claude Code 做這個專案的開發輔助，體感上速度提升最明顯的是「搜尋型工作」，像是找出所有寫死 port 的地方，這類需要全 codebase 掃描的任務，交給 AI 做比自己 grep 快很多，也比較不容易漏掉。
 
 ## 結語
 
 做成服務之後最明顯的差異是，改 prompt 或加功能只需要改一個地方，使用者不需要動本地環境，整個流程的維護成本降低很多。
 
-這個 repo 後來其實沒有繼續長下去。1/16-17 兩天衝完核心後，我隔幾天就開了 `article-suite` 把這套東西當骨架直接演進，commit 就停在 1/17。事後比對程式碼，**`article-suite` 跟 `article-generation-service` 有十多個檔案 SHA 完全相同**（包含 `services/notionService.js`、`tsconfig.json`、`config.ts`、`taskPollingService.ts`、`prompts/templates/*` 等），所以這個 repo 比較像「短命的中間態」，正式存活下來的是 `article-suite`。
+這個 repo 後來其實沒有繼續長下去。1/16-17 兩天衝完核心後，我隔幾天就開了 `article-suite` 把這套東西當骨架直接演進，commit 就停在 1/17。事後比對程式碼，**`article-suite` 跟 `article-generation-service` 有 30 個以上的檔案 SHA 完全相同**（包含 `services/server/notionService.js`、`tsconfig.json`、`config.ts`、`services/client/taskPollingService.ts`、`services/server/prompts/templates/*`、`routes/notion.js`、`services/server/taskQueue.js` 等），所以這個 repo 比較像「短命的中間態」，正式存活下來的是 `article-suite`。
 
 如果想看後續的演進故事，看 [[article-suite|把文章生產線塞進一個工作台，article-suite 開發記]]。

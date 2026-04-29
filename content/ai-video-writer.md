@@ -13,7 +13,7 @@ image: attachments/ai-video-writer-hero-v12.png
 > [!info] 專案資訊
 > - **專案**：AI Video Writer
 > - **使用工具**：Claude Code、Codex、Gemini CLI
-> - **使用模型**：gemini-2.5-flash、gemini-2.5-pro、gemini-3-pro-preview、claude-sonnet-4.5、gpt-5.1、grok-4
+> - **使用模型**：gemini-2.5-flash、gemini-2.5-pro、claude-sonnet-4.5、gpt-5.1、grok-4
 
 ## 起因
 
@@ -27,7 +27,7 @@ image: attachments/ai-video-writer-hero-v12.png
 
 ## 過程
 
-整個開發大約花了兩個半月的業餘時間，從 2025 年 11 月到 2026 年 1 月。
+整個開發分散在業餘時間，從 2025 年 11 月斷斷續續做到 2026 年 4 月。
 
 技術棧是什麼？老實說我也沒特別挑，就是告訴 AI 我要做什麼樣的工具，技術選型基本上是 AI 建議的——前端用 React + Vite、後端用 Node.js + Express。這就是 vibe coding 的好處，你不需要先花時間研究哪個框架比較好，AI 會根據你的需求給出合理的選擇，你只要專注在「我要做什麼功能」就好。
 
@@ -63,7 +63,7 @@ Gist 快取這個方案聽起來有點繞，但邏輯很清楚：頻道的影片
 
 合併完以後有一個插曲。`feature/ai-analytics` 合進 main 之後，GitHub Actions 的定時快取更新突然壞掉了，跑出一堆 `SERVER_MISCONFIGURED` 的錯誤。查了一下才發現，合併進來的分支有新增 JWT 認證 middleware，GitHub Actions 啟動後端伺服器時沒有傳 `JWT_SECRET` 環境變數，所以 middleware 一啟動就掛了，所有 API 呼叫全部回 500。更正確的說，是兩個問題疊在一起，一是 workflow 缺少 JWT_SECRET，二是腳本呼叫 API 時也沒有帶 Bearer token。Claude Code 後來把這兩個問題一起修掉，讓 GitHub Actions 腳本自己用 JWT_SECRET 簽一個 session token 再打 API。
 
-說到安全性，這個 JWT 認證是後來加的，不是一開始就有的。工具做到一定程度，部署到 Render 之後，我才意識到整個後端完全沒有保護，任何人只要知道網址就可以直接呼叫所有 API 端點，不需要登入也不需要任何憑證。我把這個問題丟給 Claude Code，它做了一次完整的安全性審查，列出了九個不同嚴重程度的漏洞，包含 Gemini 已上傳的私有影片可能被重用分析、filePath 路徑穿越風險、Notion API token 可能被 fallback 到環境變數等。最後用一套 JWT 加頻道 ID 白名單的機制把所有問題一起解掉。這件事讓我體認到，vibe coding 做工具很快，但安全性這個環節不能省，還是得有人去想「如果這個端點被亂打會怎樣」。
+說到安全性，這個 JWT 認證是後來加的，不是一開始就有的。工具做到一定程度，部署到 Render 之後，我才意識到整個後端完全沒有保護，任何人只要知道網址就可以直接呼叫所有 API 端點，不需要登入也不需要任何憑證。我把這個問題丟給 Claude Code，它做了一次完整的安全性審查，列出了好幾個不同嚴重程度的問題，包含 Gemini 已上傳的私有影片可能被重用分析、filePath 路徑穿越風險、Notion OAuth callback 缺少 CSRF 防護、task API 回傳洩漏 accessToken 等。最後用一套 JWT 加頻道 ID 白名單的機制把所有問題一起解掉。這件事讓我體認到，vibe coding 做工具很快，但安全性這個環節不能省，還是得有人去想「如果這個端點被亂打會怎樣」。
 
 ## 成果
 
