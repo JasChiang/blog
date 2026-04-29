@@ -34,7 +34,7 @@ draft: false
 
 ## 主要功能
 
-這個 MCP server 把 **YouTube Data API v3** 與 **YouTube Analytics API v2** 包成一組 tools，Claude 可以直接呼叫。主要功能包含，
+這個 MCP server 把 **YouTube Data API v3** 與 **YouTube Analytics API v2** 包成一組 tools，Claude 可以直接呼叫。主要功能包含：
 
 - **影片管理**，列出、搜尋、讀取影片詳細資料，以及更新標題、描述、標籤、分類
 - **Analytics 查詢**，讀取單支影片或整個頻道的觀看數、留存率、流量來源
@@ -49,9 +49,9 @@ draft: false
 
 最早的版本（`Initial commit`）只有基本的影片列表和 analytics 查詢，用 stdio 模式跑，OAuth token 存在本機的 `.youtube-tokens.json`。
 
-後來加了**大量搜尋**功能（`youtube_batch_get_video_analytics`、`youtube_search_and_analyze`），然後發現一個問題，每次問「最近表現最好的影片是哪幾支」，Claude 都會去呼叫 `youtube_list_videos`，每次都消耗配額，每日 10,000 點很快就用完了。
+後來加了**大量搜尋**功能，然後發現一個問題，每次問「最近表現最好的影片是哪幾支」，Claude 都會去呼叫 `youtube_list_videos`，每次都消耗配額，每日 10,000 點很快就用完了。
 
-`youtube_search_videos` 從 initial commit 起就已經走 **Gist 快取**（沿用 `ai-video-writer` 的快取模式，兩邊共用同一個 Gist ID，各自讀各自的 JSON 檔）。1/15 再把這個快取機制延伸到 `youtube_list_videos`，並加上 TTL，讓影片清單查詢也不再每次打 YouTube API。
+這時沿用了 `ai-video-writer` 既有的 **Gist 快取**模式，把影片清單快取進一個 GitHub Gist，`youtube_list_videos` 和 `youtube_search_videos` 優先讀 Gist，API 呼叫只在快取不存在或刷新時觸發。Gist 格式跟 `ai-video-writer` 共用同一份，讓兩邊資料保持一致。
 
 再後來，我希望能在不同裝置上用 Claude.ai 查，而不是只有本機，所以把 server 改成支援遠端 HTTP 模式，加了完整的 OAuth bridge，讓 Claude connector 透過標準 OAuth 流程授權，Google refresh token 不用暴露在 Render 環境變數裡。最後用 Supabase Postgres 持久化 token，這樣 Render 重啟後 session 不會掉。
 

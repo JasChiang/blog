@@ -19,7 +19,7 @@ draft: false
 >
 > - GitHub repo, [JasChiang/baha-chat](https://github.com/JasChiang/baha-chat) 的 README（若有）、commit 歷史與原始碼
 > - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-claude-----baha-chat/`
-> - Codex CLI 工作 session 紀錄, `~/.codex/sessions/2026/03/`
+> - Codex CLI 工作 session 紀錄, `~/.codex/sessions/2026/`（橫跨 02–04 月）
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -60,13 +60,13 @@ draft: false
 
 真正解決是換成 `@xterm/headless`，也就是 xterm.js 的 headless 版本，讓它在記憶體裡維護一個完整的 80x24 終端機狀態。WebSocket 收到資料之後先解碼成 UTF-8 再餵給 xterm，讀畫面時直接從模擬器的 buffer 擷取每一行，拿到的永遠是「當下可視畫面」的乾淨文字，ANSI escape code、游標移動、畫面重繪全由 xterm 在內部處理好了。
 
-這次引入也遇到一個小插曲，xterm 的 package 是 ESM，但整個專案是 CommonJS，import 方式需要特別處理，用 `import xtermPkg from "@xterm/headless"; const { Terminal } = xtermPkg;` 繞過去才跑得起來。
+這次引入也遇到一個小插曲，`@xterm/headless` v6 沒有獨立的具名 export，`Terminal` 只能從預設 export 取出，import 方式需要特別處理，用 `import xtermPkg from "@xterm/headless"; const { Terminal } = xtermPkg;` 繞過去才跑得起來。
 
 ### 第三個坑，Big5-UAO 和 token 最佳化
 
 巴哈 BBS 不是標準 Big5，而是 Big5-UAO 擴充版本，包含日文假名、圖形字元和站內慣用符號。用標準 Big5 轉換這些字元會出現亂碼，所以最後自製了 UAO codec，對照表直接整理自開源專案 [`eight04/pyUAO`](https://github.com/eight04/pyUAO)。沒有這個現成對照表，光靠自己 reverse engineer Big5-UAO 字符對應大概要花好幾天。
 
-另一個從實際使用中跑出來的問題是 token 消耗。讀一次完整的 80x24 畫面要傳很多文字，agent 每個動作都讀一次的話 token 燒得很快。後來的優化方向是兩條並行，一是加了 `bbs_get_context` 工具，回傳結構化 JSON 而不是純文字截圖，實測省了約 70-80%；二是把文章列表解析成結構化資料，附上分頁資訊（當前頁第一筆、最後一筆的文章 ID），讓 agent 不用反覆重讀整個列表就能導覽。
+另一個從實際使用中跑出來的問題是 token 消耗。讀一次完整的 80x24 畫面要傳很多文字，agent 每個動作都讀一次的話 token 燒得很快。後來的優化方向是兩條並行，一是加了 `bbs_get_context` 工具，回傳結構化 JSON 而不是純文字截圖，實測省了約 80-90%；二是把文章列表解析成結構化資料，附上分頁資訊（當前頁第一筆、最後一筆的文章 ID），讓 agent 不用反覆重讀整個列表就能導覽。
 
 ### 從 commit 歷史看演進
 

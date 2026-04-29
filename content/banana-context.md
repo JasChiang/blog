@@ -1,7 +1,7 @@
 ---
 title: 用 Gemini + Nano Banana 做一個 AI 圖片生成工具
 date: 2026-01-07
-description: BananaContext 是我用 vibe coding 做的 AI 圖片生成 side project，串接 Gemini 2.5 Flash 做智能 grounding，再用 Nano Banana Pro 生圖，順手把開發過程記下來。
+description: BananaContext 是我用 vibe coding 做的 AI 圖片生成 side project，串接 Gemini 2.5 Flash 做智能 grounding，再透過多個圖片生成後端跑圖，順手把開發過程記下來。
 tags:
   - dev
   - ai-practice
@@ -28,7 +28,7 @@ draft: false
 
 另一個問題是，我想在生圖時傳入多張參考圖片，但大部分工具支援有限，或是介面很難用。
 
-所以我就做了 **BananaContext**，一個把 Gemini 2.5 Flash 的智能判斷 + Nano Banana Pro 的圖片生成能力結合在一起的 web 工具。
+所以我就做了 **BananaContext**，一個把 Gemini 2.5 Flash 的智能判斷 + 多個圖片生成後端結合在一起的 web 工具。
 
 ## 主要功能
 
@@ -36,7 +36,7 @@ draft: false
 
 核心設計是讓使用者什麼都不用管，直接輸入提示詞送出就好。
 
-系統在收到提示詞之後，會先交給 **Gemini 2.5 Flash** 分析，它會自動判斷這個請求是否需要搜尋最新資訊。需要的話就觸發 Google Search Grounding，把搜尋結果轉換成視覺化描述再交給 Nano Banana 生圖，不需要的話就直接生圖。整個流程對使用者完全透明。
+系統在收到提示詞之後，會先交給 **Gemini 2.5 Flash** 分析，它會自動判斷這個請求是否需要搜尋最新資訊。需要的話就觸發 Google Search Grounding，把搜尋結果轉換成視覺化描述再交給圖片生成後端跑圖，不需要的話就直接生圖。整個流程對使用者完全透明。
 
 除了 Google Search，也支援餵 YouTube URL 或任意網址給 Gemini 去解析，讓圖片生成可以帶入特定頁面的上下文。
 
@@ -46,7 +46,7 @@ draft: false
 
 ### 風格模板
 
-內建 5 種預設風格，動漫、寫實攝影、水彩、賽博龐克、油畫，選好之後風格描述詞會自動附加到提示詞後面，不用自己寫一堆風格關鍵字。也可以自訂風格模板存成 `.txt` 放到 `style-templates/` 資料夾。
+內建多種預設風格模板，動漫、賽博龐克、水彩、油畫、像素藝術、寫實攝影等，後端從 `style-templates/` 資料夾自動掃描所有 `.txt` 檔案動態生成清單。選好之後風格描述詞會自動附加到提示詞後面，不用自己寫一堆風格關鍵字。也可以自訂風格模板存成 `.txt` 放到 `style-templates/` 資料夾。
 
 ### 費用透明化
 
@@ -70,7 +70,7 @@ draft: false
 
 **行動端背景斷線問題**是最麻煩的。手機瀏覽器切換 app 之後 SSE 連線會斷掉，生圖結果就不見了。後來改成輪詢 + 任務隊列架構，伺服器端把任務排隊跑，前端定期去問結果，切 app 再回來一樣可以看到。這個 PR 是 Claude 跑的，解法乾淨很多。
 
-改成輪詢架構之後，隨即發現另一個問題，**Rate limit 跟輪詢打架**。前端每 1.5 秒輪詢一次任務狀態，全域 rate limiter 設的是每 IP 15 分鐘 100 次，結果正常用大概 2 分鐘就撞到上限，前端開始回 429、報「查詢任務狀態失敗」。最後的決策是把「生成端點」和「輪詢端點」的 limiter 分開，生成端點保持嚴格，查詢狀態的端點改成超寬鬆或不套，這樣才不會讓 poll 自己把 quota 吃光。
+改成輪詢架構之後，隨即發現另一個問題，**Rate limit 跟輪詢打架**。前端每 1.5 秒輪詢一次任務狀態，全域 rate limiter 設的是每 IP 15 分鐘 100 次，結果正常用大概 2 分鐘就撞到上限，前端開始回 429、報「查詢任務狀態失敗」。最後的決策是把生成端點套上更嚴格的 `imageGenerationLimiter`（每小時 20 次），讓輪詢端點只走寬鬆的全域 `apiLimiter`，這樣才不會讓 poll 自己把 quota 吃光。
 
 另外是 **Gemini 3 Pro Image Preview 模型設定的問題**，一度不小心改掉 model ID 讓圖片生成一直回空，debug 了一段時間。後來用 Codex 查 commit 歷史找出是哪次改壞的，直接修回正確的 model ID。
 
@@ -95,12 +95,12 @@ draft: false
 ### API 服務
 
 - **OpenRouter** 作為 API 閘道，統一管理模型切換和計費
-- **Nano Banana Pro** 負責圖片生成（透過 OpenRouter 呼叫）
+- **Google Gemini 3 Pro Image Preview**（透過 OpenRouter）作為預設圖片生成模型，**fal-ai/nano-banana-pro** 為可選後端（主題字模式的預設）
 - **Google Gemini 2.5 Flash** 負責智能 grounding 判斷，搭配 Google Search 工具
 
-這個組合的好處是 Gemini 的 grounding 能力很強，搜尋結果品質不錯，而且 Nano Banana 的圖片品質在這個價位段蠻有競爭力的。
+Gemini 的 grounding 能力很強，搜尋結果品質不錯，圖片品質在這個價位段也蠻有競爭力的。
 
-整個開發期間，[Google Gemini API docs](https://github.com/google-gemini/cookbook) 跟 deprecated 文件被翻過幾十次，因為 Nano Banana Pro 的回傳格式、grounding tool spec、安全分類欄位變動不少，每次接新功能都要對著官方範例 codebase 跑一次才能確認最新做法。對於還在快速迭代的 API 來說，文件的 commit history 比 stable docs 還重要。
+整個開發期間，[Google Gemini API docs](https://ai.google.dev/gemini-api/docs) 跟 deprecated 文件被翻過幾十次，因為 grounding tool spec、安全分類欄位、回傳格式變動不少，每次接新功能都要對著官方文件跑一次才能確認最新做法。對於還在快速迭代的 API 來說，文件的 commit history 比 stable docs 還重要。
 
 ## 心得
 

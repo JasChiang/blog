@@ -12,12 +12,7 @@ draft: false
 ![用 GitHub Gist 當快取，解決 YouTube API 配額焦慮](attachments/youtube-analytics-simple-cache-hero.png)
 
 > [!info] 本文由來
-> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
->
-> 整理依據，
->
-> - GitHub repo `youtube-analytics-simple-cache`（private repo）的 README、commit 歷史與原始碼
-> - Codex CLI sessions（repo-stories.md 整理稿、相關開發 session 對話）
+> 這篇是 Claude Code 根據 GitHub repo `youtube-analytics-simple-cache` 的 README、commit 歷史與原始碼整理的開發記錄，經作者審稿後發布。
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 

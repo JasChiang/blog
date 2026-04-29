@@ -39,9 +39,9 @@ Claude 支援 MCP，理論上可以讓 AI 直接呼叫外部工具拿資料，�
 
 ## 開發過程
 
-`Initial commit` 在 2026/01/06 落地，是完整的 MCP server 骨架，OAuth 流程、YouTube API 包裝、工具定義都在。
+`Initial commit` 在 2026/01/06 落地，是完整的 MCP server 骨架，OAuth 流程、YouTube API 包裝、工具定義都在，群組管理功能也在這一版就有了。
 
-接著補了「登入持久化 + 改善搜尋」，讓重啟 server 後不需要重新跑 OAuth，並讓影片搜尋更好用。然後加了群組功能，又馬上 revert 掉，「關閉群組功能」和隨後的 revert commit 說明了這段來回，群組功能的 YouTube Analytics API 有獨立的配額與權限要求，當下判斷不值得為了這個功能增加設定複雜度。
+接著補了「登入持久化 + 改善搜尋」，讓重啟 server 後不需要重新跑 OAuth，並讓影片搜尋更好用。然後試著把群組功能關掉（「關閉群組功能」），因為群組 API 有獨立的配額與權限要求，當下判斷不值得增加設定複雜度，又立刻 revert 回來，群組功能最終還是留著。最後一個 commit revert 了「登入持久化 + 改善搜尋」，登入持久化在這版也沒有保留下來。
 
 整個 repo 的 commit history 只有五條，週期不到一天，典型的 vibe coding 節奏，快速驗證、發現問題、決定取捨。
 
@@ -67,7 +67,7 @@ Claude 支援 MCP，理論上可以讓 AI 直接呼叫外部工具拿資料，�
 
 做這個 prototype 最大的收穫，不是「MCP 能跑」，而是親身感受到兩件事。
 
-第一，**工具的精簡比功能的完整更重要**。群組功能的 add → revert 這段來回，讓我意識到 MCP tool list 越長，AI 在組合呼叫時出錯的機會就越多，設定也越複雜。只留真正常用的 tool，讓 Claude 的判斷空間縮小，反而更可靠。後來在設計 `youtube-analytics-mcp-server` 的時候，我刻意沒有把所有 YouTube API 的功能都包進去，這個決定就是從這裡來的。
+第一，**工具的精簡比功能的完整更重要**。群組功能的關閉 → revert 這段來回，讓我意識到每多一個 API surface，就多一層配額與權限的複雜度。MCP tool list 越長，AI 在組合呼叫時出錯的機會就越多，設定也越複雜。只留真正常用的 tool，讓 Claude 的判斷空間縮小，反而更可靠。後來在設計 `youtube-analytics-mcp-server` 的時候，我刻意沒有把所有 YouTube API 的功能都包進去，這個決定就是從這裡來的。
 
 第二，**quota 管理從一開始就要考慮，不能留到後期**。第一版完全沒有快取，是因為當時想先確認「OAuth 能不能跑通、Claude 能不能拿到資料」這個核心假設。假設確認後，配額問題馬上就出現了，隔天就另外做了 simple-cache。如果一開始就把快取設計進去，prototype 會更慢，但也不會在剛驗證成功的時候立刻碰壁。這是 vibe coding 的代價，也是它的特性，先跑起來，再解決跑起來之後才發現的問題。
 
