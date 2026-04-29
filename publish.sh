@@ -13,13 +13,14 @@ rsync -av --delete \
 
 cd "$REPO_DIR"
 
-if git diff --quiet content/ && git diff --cached --quiet content/; then
+git add content
+
+if git diff --cached --quiet; then
   echo "==> No content changes. Nothing to publish."
   exit 0
 fi
 
 echo "==> Committing and pushing..."
-git add content
 git commit -m "publish: $(date '+%Y-%m-%d %H:%M')"
 git push
 
