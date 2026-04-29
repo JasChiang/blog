@@ -73,7 +73,7 @@ Remote HTTP 模式的 OAuth 有兩層，不是一層。
 
 整個 callback 路徑是，Claude 打 `/oauth/authorize` → server 驗完 PKCE 後 redirect 去 Google OAuth consent → Google 回來 `/oauth/google/callback` → server 建立本地 authorization code → Claude 用 `POST /oauth/token` 換 MCP token → 之後每次請求帶 Bearer token。
 
-這段邏輯集中在 `src/routes/oauth.ts`，是整個 repo 裡最需要細心維護的地方。
+這段邏輯集中在 `src/routes/oauth.ts`，是整個 repo 裡最需要細心維護的地方。OAuth 兩層的型別定義（`src/types/auth.ts`）跟加解密 helper（`src/lib/crypto.ts`）兩個檔案是直接從 [[youtube-analytics-mcp-server|youtube-analytics-mcp-server]] 那邊拿過來的（兩個 repo 同一份 SHA），因為兩個 server 走同一套 OAuth bridge 模式，連底層的 token 加密、refresh token 流程都一樣，沒必要重寫。
 
 ### Remote 比 Stdio 更適合這個場景，但成本也更高
 

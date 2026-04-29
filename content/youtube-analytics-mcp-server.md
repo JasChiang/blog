@@ -83,6 +83,8 @@ remote 模式最直觀的做法是把 Google refresh token 放進 Render 環境�
 
 OAuth bridge 的做法是讓 server 自己走一次 Google OAuth，拿到 token 後存進 Postgres，之後 Claude connector 拿到的是 server 自己發的 MCP token，Google token 完全不對外。Access token 到期時 server 自動用 refresh token 換新的，並回寫 store。
 
+這套 OAuth bridge 的型別定義（`src/types/auth.ts`）跟加解密 helper（`src/lib/crypto.ts`）後來在做 [[ga4-remote-mcp|ga4-remote-mcp]] 時直接整段拿過去用，兩個 repo 同一份 SHA，省下重寫底層的功夫，也讓兩個 MCP server 之間的 token 處理風格保持一致。
+
 ## 心得
 
 （TODO 補上）

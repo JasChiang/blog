@@ -100,6 +100,8 @@ draft: false
 
 這個組合的好處是 Gemini 的 grounding 能力很強，搜尋結果品質不錯，而且 Nano Banana 的圖片品質在這個價位段蠻有競爭力的。
 
+整個開發期間，[Google Gemini API docs](https://github.com/google-gemini/cookbook) 跟 deprecated 文件被翻過幾十次，因為 Nano Banana Pro 的回傳格式、grounding tool spec、安全分類欄位變動不少，每次接新功能都要對著官方範例 codebase 跑一次才能確認最新做法。對於還在快速迭代的 API 來說，文件的 commit history 比 stable docs 還重要。
+
 ## 心得
 
 整個開發過程最有感的是 AI 在「有明確規格的實作任務」上真的很有效率，給 Claude 或 Codex 一個清楚的 bug 描述加上相關 log，大多數時候可以直接找到問題點並修好。比較需要自己介入的是架構決策，例如輪詢 vs SSE 的取捨、rate limit 策略、主題字模板的結構，這些判斷還是要自己來，AI 頂多幫你列出選項和 tradeoff。

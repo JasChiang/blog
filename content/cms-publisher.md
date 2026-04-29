@@ -96,3 +96,5 @@ Skill 的 `publish.js` 腳本負責，接收 JSON payload，判斷輸入是 Mark
 這個工具本身不大，但它代表的是一種工作流思維，把 AI 生成的東西真正接上業務系統，而不是停在「生成完貼上去」這一步。Claude Code 在其中扮演的角色不是寫功能，而是分析 API 結構，把我自己看 Network tab 費力拼湊的過程，直接壓縮成可以跑的程式碼。
 
 對我來說，這類「讓 AI 幫你串接沒有文件的系統」的能力，可能才是 vibe coding 最有用的地方，不是生成樣板程式碼，而是去搞定那些原本要花很多時間才能弄懂的整合細節。
+
+值得補充一點，公司同個 CMS 我實作了兩套並行的版本。一套就是這個獨立 HTTP 服務（cms-publisher），讓任何 LLM 工作流都能直接呼叫 `POST /api/publish` 把文章塞進去；另一套整合在 [[article-suite|article-suite]] 內部，做為文章工作台的「最後一哩」，跟商品卡 / schema 注入 / 縮圖等流程綁在一起。兩套程式碼是分開維護的（內建 senaoHttpClient 是 article-suite 自己刻的版本），不是同一份，但靠著各自的 README 和環境變數，兩條路都還能維持運作。

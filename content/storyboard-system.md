@@ -124,6 +124,18 @@ LocalStorage 做持久化這件事，算是 vibe-coding 工具的典型選擇，
 
 圖片模型的選擇上，GPT Image 2 和 nano banana pro 的核心差異在於，GPT Image 2 有語意理解能力，可以根據文字指令做 inpainting（mask 合成），nano banana pro 則在 4K 原生解析度和更寬的長寬比支援上有優勢。實際用下來，GPT Image 2 的 reference 模式在多角色、多商品同框時表現更穩，成為主力選擇。
 
+## 借力其他專案
+
+這個系統很多地方不是自己從零寫的，而是把開源社群的東西組起來再加上自己的工作流。
+
+**[Augani/openreel-video](https://github.com/Augani/openreel-video)（MIT）**，整個瀏覽器內的影片剪輯引擎是直接 bundle 在 `external/openreel-video/` 子資料夾下，當作獨立子服務啟動（port 5173）。OpenReel 自稱是「open source CapCut alternative」，120k+ 行 TypeScript，跑在純 client side，多軌時間軸、轉場、effects、音訊混音都有，比起自己刻一個剪輯 UI，直接借這套是最務實的選擇。我這邊主要把它當「最後合成階段」的編輯介面，前面的 AI 腳本/分鏡/生圖都是自己的程式跑完之後，把素材丟進 OpenReel 做最後剪輯與輸出。
+
+**[Forget-C/Jellyfish](https://github.com/Forget-C/Jellyfish)**，一個一站式 AI 短劇生產工具，研究它的時候對我影響最大的是它把一致性問題拆成「全域資產庫、專案快照、跨分鏡參考圖、提示詞模板」幾層的思路。讓我意識到自己缺的不是再加一個角色庫頁面，而是場景層的 reference 治理，後來把這個思路落地成 `referencePlan` 解析器（前面 `### 一致性驗證器的加入` 段有提到）。
+
+**[songguoxs/seedance-prompt-skill](https://github.com/songguoxs/seedance-prompt-skill)** 與 **[YouMind-OpenLab/awesome-seedance-2-prompts](https://github.com/YouMind-OpenLab/awesome-seedance-2-prompts)**，做 Seedance 影片提示詞時的兩個主要參考來源。前者把 Seedance 提示詞包成一個 Codex skill，後者是社群整理的 awesome list。我自己的提示詞模板大量參考這兩邊的 pattern，特別是「鏡頭運動 + 主體狀態 + 環境光線」三段式描述的順序與用詞。
+
+**X (Twitter) 截圖與設計參考**，整個專案 Claude Code session 裡累積有 100+ 張 user 上傳的圖片，多半是行內人的 X 貼文截圖（Sora、Veo、Seedance、Nano Banana 等模型實測心得）、其他人做的分鏡 demo、影片廣告片段等。這類「先看別人怎麼做」的 reference-driven 開發在 vibe coding 一個生成式系統時特別重要，因為這領域變化太快，論文跟不上實作，多數最佳實踐都散落在社群討論裡。
+
 ## 心得
 
 這個系統在 vibe-coding 的脈絡下有一個有趣的現象，AI 幫你生出來的程式碼本身就是在生 AI 的 prompt，所以你在 debug 的時候，有時候不確定是「程式碼的問題」還是「prompt 的問題」還是「模型這次跑歪了」。這三層同時在動，很難切開。
