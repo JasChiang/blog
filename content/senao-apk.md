@@ -13,9 +13,17 @@ draft: false
 ![公司電商 App 首頁影音版位監控](attachments/senao-apk-hero.png)
 
 > [!info] 本文由來
-> 這篇是我整理自己在 Claude Code 工作 session 的紀錄，由 Claude 協助結構化成文章後審稿發布。
+> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 原始素材建立於 2026/03/25，最後更新 2026/04/01。
+> 整理依據，
+>
+> - GitHub repo, [JasChiang/senao-apk](https://github.com/JasChiang/senao-apk) 的 README（若有）、commit 歷史與原始碼
+> - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-claude-----senao-apk/`
+> - Codex CLI session 紀錄
+>
+> Repo 沒有 README，主要從反編譯 APK、commit 歷史與 session 紀錄整理而成
+>
+> 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
 ## 起因
 
@@ -67,6 +75,18 @@ mweb 首頁是 HTML，影音版位隱藏在特定的 HTML 註解標記之後，�
 - 館別頁面回傳異常（「系統忙碌中」或 response 過短）
 - 館別頁面有影片但影片 YouTube ID 與首頁不一致
 - 館別頁面的商品資料有問題
+
+### 第四步，實測之後的發現
+
+工具實際跑起來，比對了好幾輪後發現一件事，**App 和 mweb 的版位連結其實一直都是一致的**。原本假設兩邊設定獨立、可能常常出包，後來才意識到行銷端是同一批人在維護，**實務上兩邊都會同步更新**，所以掃 mweb 跟掃 App 拿到的內容幾乎完全一樣。
+
+這個發現讓監控腳本的價值重點轉了一下，
+
+- **驗證一致性的長期成立**，萬一哪天有人忘了同步，腳本能第一時間抓到
+- **YouTube 影片本身的下架或私有化**，這跟兩端設定無關，仍然是真實的監控需求
+- **館別頁面異常**（系統忙碌、商品下架、缺圖），跟 App / mweb 兩邊一不一致無關
+
+換句話說，做這支腳本之前我假設「兩端會頻繁分歧」，做完才知道分歧很少。**真正會持續變動的是 YouTube 影片狀態跟館別頁面內容**，工具的價值落在這兩塊，不在 App vs mweb 比對本身。
 
 ### 踩到的坑
 

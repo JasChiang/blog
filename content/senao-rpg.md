@@ -13,11 +13,13 @@ draft: false
 ![senao-rpg hero](attachments/senao-rpg-hero.png)
 
 > [!info] 本文由來
-> 這篇是把開發過程的 commit log 和 README 整理成文章，由 Claude 協助結構化後審稿發布。
+> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 專案建立於 2026 年初。
+> 整理依據，
 >
-> 文章開頭的概念圖是用 **Codex CLI 內建的 image_gen 工具**生成。
+> - GitHub repo, [JasChiang/senao-rpg](https://github.com/JasChiang/senao-rpg) 的 README（若有）、commit 歷史與原始碼
+>
+> 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
 ## 起因
 

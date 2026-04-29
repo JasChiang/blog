@@ -13,9 +13,13 @@ draft: false
 ![SEO 內容生成器概念圖](attachments/seo-content-generator-hero.png)
 
 > [!info] 本文由來
-> 這篇是我整理自己開發的一個內部工具後寫的開發紀錄，由 Claude 協助結構化成文章後審稿發布。
+> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 工具開發於 2025 年，最後更新 2026 年 4 月。
+> 整理依據，
+>
+> - GitHub repo, [JasChiang/seo-content-generator](https://github.com/JasChiang/seo-content-generator) 的 README（若有）、commit 歷史與原始碼
+>
+> 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
 ## 起因
 

@@ -12,11 +12,13 @@ draft: false
 ![youtube-analytics hero](attachments/youtube-analytics-hero.png)
 
 > [!info] 本文由來
-> 這篇是 Claude Code 整理 `youtube-analytics` repo 的 commits、設定檔與原始碼後，由作者審稿發布。
+> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 原始素材建立於 2026/01/06。
+> 整理依據，
 >
-> 文章開頭的概念圖是用 **Codex CLI 內建的 image_gen 工具**生成。
+> - GitHub repo, [JasChiang/youtube-analytics](https://github.com/JasChiang/youtube-analytics) 的 README（若有）、commit 歷史與原始碼
+>
+> 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
 ## 起因
 

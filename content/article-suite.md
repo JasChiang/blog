@@ -13,11 +13,14 @@ draft: false
 ![article-suite 工作台概念圖](attachments/article-suite-hero.png)
 
 > [!info] 本文由來
-> 這篇是 Claude Code 根據 `article-suite` repo 的 README、CHANGELOG 與 commit 歷史整理而成，由作者審稿後發布。
+> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 原始素材（程式碼與文件）建立於 2026-01-17，最後更新 2026-04-29。
+> 整理依據，
 >
-> 文章開頭的概念圖是用 **Codex CLI 內建的 image_gen 工具**生成。
+> - GitHub repo, [JasChiang/article-suite](https://github.com/JasChiang/article-suite) 的 README（若有）、commit 歷史與原始碼
+> - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-Documents-GitHub-article-suite/`
+>
+> 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
 ## 起因
 

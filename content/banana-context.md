@@ -13,11 +13,13 @@ draft: false
 ![BananaContext hero](attachments/banana-context-hero.png)
 
 > [!info] 本文由來
-> 這篇是我整理 BananaContext 這個 side project 的開發紀錄，由 Claude 協助結構化成文章後審稿發布。
+> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 原始開發始於 2024 年底，持續迭代至 2025 年。
+> 整理依據，
 >
-> 文章開頭的概念圖是用 **Codex CLI 內建的 image_gen 工具**生成。
+> - GitHub repo, [JasChiang/banana-context](https://github.com/JasChiang/banana-context) 的 README（若有）、commit 歷史與原始碼
+>
+> 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
 ## 起因
 

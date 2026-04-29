@@ -13,11 +13,14 @@ draft: false
 ![ga4-remote-mcp hero](attachments/ga4-remote-mcp-hero.png)
 
 > [!info] 本文由來
-> 這篇是我整理自己的 private repo `ga4-remote-mcp` 的開發脈絡，由 Claude Code 讀取 git commit 歷史與 README 後協助結構化成文章，再由我審稿發布。
+> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> Repo 的開發期間為 2026-03-30 到 2026-04-10，共 16 個 commit（統計至本文撰寫時）。
+> 整理依據，
 >
-> 文章開頭的概念圖是用 **Codex CLI 內建的 image_gen 工具**生成。
+> - GitHub repo, [JasChiang/ga4-remote-mcp](https://github.com/JasChiang/ga4-remote-mcp) 的 README（若有）、commit 歷史與原始碼
+> - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-claude-----ga4-remote-mcp/`
+>
+> 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
 ## 起因
 

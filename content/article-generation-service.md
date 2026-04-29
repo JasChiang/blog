@@ -13,9 +13,14 @@ draft: false
 ![article-generation-service 概念圖](attachments/article-generation-service-hero.png)
 
 > [!info] 本文由來
-> 這篇是我整理自己開發 `article-generation-service` 這個 side project 的過程與想法，由 Claude 協助結構化成文章後審稿發布。
+> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 原始素材建立於 2026/04/29。
+> 整理依據，
+>
+> - GitHub repo, [JasChiang/article-generation-service](https://github.com/JasChiang/article-generation-service) 的 README（若有）、commit 歷史與原始碼
+> - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-Documents-GitHub-article-generation-service/`
+>
+> 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
 ## 起因
 
