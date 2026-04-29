@@ -8,6 +8,8 @@ tags:
 draft: false
 ---
 
+![2025 年版 AI 使用經歷](attachments/ai-usage-2025-hero-v11.png)
+
 > [!info] 本文由來
 > 這篇是我內部分享簡報「2025 年版 AI 使用經歷」的整理版，記錄當時我實際把 AI 工具用在工作上的方法與選擇。
 > 

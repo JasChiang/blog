@@ -7,6 +7,8 @@ tags:
   - vibe-coding
 ---
 
+![用 Vibe Coding 打造 AI Video Writer](attachments/ai-video-writer-hero-v11.png)
+
 > [!info] 專案資訊
 > - **專案**：AI Video Writer
 > - **使用工具**：Claude Code、Codex、Gemini CLI

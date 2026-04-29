@@ -5,10 +5,10 @@ description: 我把 Gen AI 工具當成內部溝通的加速器與測試工具�
 tags:
   - ai-practice
   - thinking
-draft: true
+draft: false
 ---
 
-![審慎挑選 AI 工具](attachments/ai-tool-hero.png)
+![審慎評估 樂觀看待 AI 工具](attachments/ai-tool-hero-v11.png)
 
 > [!info] 本文由來
 > 這篇是我整理自己在 Threads 上幾則關於 AI 工具態度的發文，由 Claude 協助結構化成完整文章，再由我審稿後發布。
