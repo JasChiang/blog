@@ -85,4 +85,6 @@ draft: false
 
 做成服務之後最明顯的差異是，改 prompt 或加功能只需要改一個地方，使用者不需要動本地環境，整個流程的維護成本降低很多。
 
-這個專案目前還是 private repo，主要是內部使用，但整體架構是很通用的，如果你有類似的需求，歡迎聊聊。
+這個 repo 後來其實沒有繼續長下去。1/16-17 兩天衝完核心後，我隔幾天就開了 `article-suite` 把這套東西當骨架直接演進，commit 就停在 1/17。事後比對程式碼，**`article-suite` 跟 `article-generation-service` 有十多個檔案 SHA 完全相同**（包含 `services/notionService.js`、`tsconfig.json`、`config.ts`、`taskPollingService.ts`、`prompts/templates/*` 等），所以這個 repo 比較像「短命的中間態」，正式存活下來的是 `article-suite`。
+
+如果想看後續的演進故事，看 [[article-suite|把文章生產線塞進一個工作台，article-suite 開發記]]。

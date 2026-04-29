@@ -45,6 +45,10 @@ draft: false
 
 **1 月 17 日，最初版本**，就是一個 React + Express，前端輸入 YouTube URL，後端打 Gemini API，把結果顯示出來。架構很薄，但核心跑通了。
 
+說「最初」其實也不是完全從零，這支工具是直接拿前一天剛切出來的 `article-generation-service` 當骨架繼續往上長，再往前追一層的話，那個 repo 又是從 `ai-video-writer` 拆出來的文章生成模組。事後比對檔案 SHA，可以看到清楚的繼承鏈，`services/notionService.js`、`tsconfig.json`、`config.ts` 這三個檔在 `ai-video-writer` → `article-generation-service` → `article-suite` 三個 repo 都是同一份；`services/client/geminiService.ts`、`taskPollingService.ts`、`routes/templates.js`、`routes/tasks.js`、`components/AppIcon.tsx`、`prompts/templates/*.js` 這些則在 `article-generation-service` 跟 `article-suite` 完全相同。所以 1/17 這天看似在「開新 repo」，實際上比較像把同一套程式碼換個地方重新出發。
+
+之後 `article-generation-service` 就停在 1/17，commit 數停在 14；`article-suite` 從那天起活了三個多月，累積近 300 個 commit。詳細演進故事看 [[article-generation-service|把 AI 產文包成服務，是怎麼一回事]]。
+
 **1 月 19–27 日，快速堆功能**，加了 AEO HTML 模板（試驗能不能讓文章更容易被 LLM 引用）、內文圖片生成、OpenRouter 輔助生圖提示詞、還有草稿自動存取。草稿這件事其實踩過坑，最初生成後沒有存稿，重新整理一次所有東西就不見了，後來改成每次產文都自動存 localStorage，重開頁面自動還原。
 
 **2 月初，品質迭代**，這段時間集中改提示詞品質，包括防止 AI 捏造 YouTube 影片 ID（用 Levenshtein 距離自動修正）、禁止模型補充無根據的資料、清除模板中的 emoji 以免影響格式。另外加了 Google Search Grounding 讓純主題模式可以即時搜尋，以及 Gemini Thinking Mode 作為可選開關。
