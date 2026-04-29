@@ -49,7 +49,7 @@ image: attachments/ai-video-writer-hero-v12.png
 
 基本功能穩定之後，我開始想：既然都串了 YouTube API 了，不如順便把頻道數據分析也做進來。觀看次數、流量來源、觀眾組成這些資料，平常要跑去 YouTube Studio 看，何不直接整合在同一個工具裡？
 
-這裡踩了一個坑：YouTube Data API 的搜尋功能配額消耗很大，用沒幾次每日額度就見底了。後來的解法是把影片清單存到 GitHub Gist 當快取，搭配 GitHub Actions 定時更新——這個優化方向其實是 Claude Code 在幫我做 code review 的時候建議的。
+這裡踩了一個坑，YouTube Data API 的搜尋功能配額消耗很大，用沒幾次每日額度就見底了。後來的解法是把影片清單存到 GitHub Gist 當快取，搭配 GitHub Actions 定時更新，這個優化方向其實是 Claude Code 在幫我做 code review 的時候建議的。Gist 這個工具其實 11 月初就已經接進來放遠端文章模板（`CUSTOM_TEMPLATE_URL`），到這時剛好把同一條路重新利用在影片清單快取上。
 
 Gist 快取這個方案聽起來有點繞，但邏輯很清楚：頻道的影片清單不需要即時更新，每天同步一次就夠了；與其每次開頁面都呼叫 YouTube API，不如把結果存在 Gist，要查的時候直接讀靜態 JSON，配額消耗降到幾乎為零。我這種對基礎設施設計不熟的人，大概自己不太會想到這個方向，這也算是 AI 協作開發裡「它比你想得更遠」的一個例子。
 

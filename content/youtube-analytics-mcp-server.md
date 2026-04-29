@@ -51,7 +51,7 @@ draft: false
 
 後來加了**大量搜尋**功能，然後發現一個問題，每次問「最近表現最好的影片是哪幾支」，Claude 都會去呼叫 `youtube_list_videos`，每次都消耗配額，每日 10,000 點很快就用完了。
 
-這促成了 **Gist 快取**的設計，把影片清單快取進一個 GitHub Gist，`youtube_list_videos` 和 `youtube_search_videos` 優先讀 Gist，API 呼叫只在快取不存在或刷新時觸發。這個設計後來也和另一個工具（`ai-video-writer`）共用同一份 Gist 格式，讓兩邊資料保持一致。
+這時沿用了 `ai-video-writer` 既有的 **Gist 快取**模式，把影片清單快取進一個 GitHub Gist，`youtube_list_videos` 和 `youtube_search_videos` 優先讀 Gist，API 呼叫只在快取不存在或刷新時觸發。Gist 格式跟 `ai-video-writer` 共用同一份，讓兩邊資料保持一致。
 
 再後來，我希望能在不同裝置上用 Claude.ai 查，而不是只有本機，所以把 server 改成支援遠端 HTTP 模式，加了完整的 OAuth bridge，讓 Claude connector 透過標準 OAuth 流程授權，Google refresh token 不用暴露在 Render 環境變數裡。最後用 Supabase Postgres 持久化 token，這樣 Render 重啟後 session 不會掉。
 
