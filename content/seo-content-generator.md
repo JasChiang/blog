@@ -57,7 +57,7 @@ draft: false
 
 ## 開發過程
 
-從第一個 commit 到基本功能跑起來，過程比想像中快，但有幾個卡點值得記一下。
+從第一個 commit 到基本功能跑起來，兩天 7 個 commit，過程比想像中快，但有幾個卡點值得記一下。
 
 **Google API 授權比想像中麻煩。** OAuth 2.0 的設定流程不複雜，但 token 過期後的自動重新授權需要額外處理。後來加了憑證過期偵測，在 session 失效時引導使用者重新登入，這才讓整個流程順起來。
 
@@ -65,7 +65,7 @@ draft: false
 
 **主題分析的「去重」是個設計重點。** 六種策略同時跑，同一個關鍵字可能在不同策略下都出現。最後用 keyword 做 key，只保留分數最高的那筆，避免清單被重複項目塞滿。
 
-**Python 版本和 protobuf 衝突。** 最初選 `google-analytics-data 0.18.2`，在 Python 3.13 上跑到 protobuf 6.x 時報了 "Metaclasses with custom tp_new are not supported" 錯誤，GA4 API 完全呼叫不了。升到 0.20.0 才解決，同時鎖定不用 Python 3.14，因為當時 3.14 的相容性還不穩定。這類 "library 組合地雷" 很難靠文件預測，只能碰壁了才知道。
+**Python 版本和 protobuf 衝突。** 最初選 `google-analytics-data 0.18.2`，在 Python 3.13 本機環境上跑到 protobuf 6.x 時報了 "Metaclasses with custom tp_new are not supported" 錯誤，GA4 API 完全呼叫不了。升到 0.20.0 才解決，Render 部署則鎖在 Python 3.9（runtime.txt），確保 library 組合的穩定性。這類 "library 組合地雷" 很難靠文件預測，只能碰壁了才知道。
 
 **Render 部署的 SQLite 陷阱。** 用 Render 免費方案跑時，才發現它的 filesystem 是 ephemeral 的，每次重啟後 SQLite 資料庫都會清空。開發測試階段無感，但一上正式環境馬上踩坑。最後加了切換 PostgreSQL 的文件說明，讓有需要的人知道怎麼遷移。
 

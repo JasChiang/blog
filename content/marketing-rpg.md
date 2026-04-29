@@ -15,7 +15,7 @@ draft: false
 > [!info] 本文由來
 > 這篇是把開發過程的 commit log 整理成文章，由 Claude Code 協助結構化後審稿發布。
 >
-> 原始素材（程式碼與 commit 歷史）建立於 2026 年初。
+> 原始素材（程式碼與 commit 歷史）建立於 2026 年 4 月。
 >
 > 文章開頭的概念圖是用 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -37,7 +37,7 @@ draft: false
 - **Battle（戰鬥場景）** — 隨機遭遇的回合制戰鬥，商品資料驅動角色能力值
 - **Ending（結局場景）** — 通關後展示角色裝備總覽
 
-商品資料存在 `data/products.json`，由 `GameData` singleton 在遊戲啟動時載入，讓所有場景共享同一份資料，不需要重複讀檔。
+商品資料、城市劇情、地圖節點、敵人屬性分別存在 `data/` 下的四支 JSON（`products.json`、`story.json`、`counties.json`、`enemies.json`），由 `GameData` singleton 在遊戲啟動時一次載入，讓所有場景共享同一份資料，不需要重複讀檔。
 
 ## 開發過程
 
@@ -63,7 +63,7 @@ draft: false
 
 一個小坑是，Godot 4 的多執行緒 web 匯出需要瀏覽器支援 `SharedArrayBuffer`，而 GitHub Pages 預設不送 `Cross-Origin-Opener-Policy` header，所以要在 `export_presets.cfg` 關掉 thread，改用單執行緒模式。這個設定如果沒調好，遊戲會在瀏覽器直接黑畫面。
 
-**字型。** 預設的 Godot 字型不支援 CJK，中文會全部變豆腐。解法是打包 Noto Sans TC 的子集字型，從 11MB 壓到 417KB，確保遊戲內的中文正常顯示。
+**字型。** 預設的 Godot 字型不支援 CJK，中文會全部變豆腐。解法是打包 Noto Sans TC 的子集字型，從 11MB 壓到 600KB 出頭（隨著新增對話與地名，中途二次子集後最終約 620KB），確保遊戲內的中文正常顯示。
 
 **自動部署流程。**
 
@@ -75,7 +75,7 @@ git push main
   → upload-pages-artifact → deploy-pages
 ```
 
-每次 push 後約 2-3 分鐘上線，整個流程不需要在本機安裝任何 CI 工具。
+每次 push 後約 1-2 分鐘上線，整個流程不需要在本機安裝任何 CI 工具。
 
 **資料驅動設計。** 商品資料、城市設定、敵人屬性全部存在 `data/` 下的 JSON 檔案，遊戲邏輯不 hardcode 任何商品名稱。要更新商品清單，只需要換 JSON，不需要動 GDScript。`GameData` autoload singleton 在遊戲啟動時一次載入，其他場景直接用 `GameData.items` 存取，架構乾淨。
 

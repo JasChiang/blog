@@ -13,15 +13,7 @@ draft: false
 ![電商 App 首頁影音版位監控](attachments/ecom-app-monitor-hero.png)
 
 > [!info] 本文由來
-> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
->
-> 整理依據，
->
-> - GitHub repo 的 commit 歷史與原始碼
-> - Claude Code 工作 session 紀錄
-> - Codex CLI session 紀錄
->
-> 主要從 commit 歷史與 session 紀錄整理而成。
+> 這篇是我整理自己做這個小工具的過程，由 Claude Code 協助對照 repo commit 歷史與工作 session 紀錄草稿後，我審稿修訂發布。
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -78,7 +70,7 @@ mweb 首頁是 HTML，影音版位隱藏在特定的 HTML 註解標記之後，�
 
 ### 第四步，實測之後的發現
 
-工具實際跑起來，比對了好幾輪後發現一件事，**App 和 mweb 的版位連結其實一直都是一致的**。原本假設兩邊設定獨立、可能常常出包，後來才意識到行銷端是同一批人在維護，**兩端設定雖然獨立，但實務上都會同步更新**，所以掃 mweb 跟掃 App 拿到的內容幾乎完全一樣。
+工具第一次跑起來，就抓到 mweb 有幾個版位設定錯了，連結直接指向 YouTube 而不是館別頁，和 App 設定不一致。這些都是真實的設定錯誤，修正後 App 和 mweb 才對齊。**兩端設定雖然獨立，但實務上行銷端是同一批人在維護，平時都會同步更新**，所以掃 mweb 跟掃 App 拿到的內容幾乎完全一樣。
 
 這個發現讓監控腳本的價值重點轉了一下，
 
@@ -90,9 +82,9 @@ mweb 首頁是 HTML，影音版位隱藏在特定的 HTML 註解標記之後，�
 
 ### 踩到的坑
 
-第一個版本放到 GitHub Actions 跑的時候，`result.txt` 沒有產生，整個 job 直接失敗。原因是腳本錯誤時提早退出，沒走到輸出那一段。後來改成先確保檔案存在，再把結果寫進去，workflow 才穩定下來。
+第一個版本放到 GitHub Actions 跑的時候，整個 job 直接失敗，連 `result.txt` 都沒產生。問題出在 private repo 沒有給 workflow 的 `contents: read` 權限，checkout 就掛了，後續步驟完全沒跑到。加上 `permissions: contents: read` 之後才過。另外 Job Summary 和 Upload artifact 也要防禦這種 checkout 失敗的情況，先檢查檔案存在再執行，否則會連鎖報錯。
 
-還有一個是 macOS 上 `grep -P` 不支援 Perl regex，本地測試沒問題，放到 GitHub Actions（Linux）上才發現。這種環境差異在 vibe coding 的情境特別容易忽略，因為往往本地跑一次覺得 OK 就推上去了。
+還有一個是商品頁的「補貨中」判斷，第一版直接掃整頁 HTML，結果抓到頁面下方推薦商品的「補貨中」文字，誤報。後來改成只看主商品自己的按鈕區塊（`#btn-group`），才能準確判斷當前這件商品是否補貨中。
 
 ## 技術選擇
 
@@ -113,4 +105,4 @@ mweb 首頁是 HTML，影音版位隱藏在特定的 HTML 註解標記之後，�
 
 這個案子有趣的地方在於，起點是一個很具體的痛點，「內容上下架沒有通知，要人工去查」，然後一路追下去，從研究 App 端 API 呼叫方式、HTML 爬取，到最後落地成一個每天自動寄信的監控流程。
 
-整個過程大約用了兩個 Claude Code session，從零到跑起來大概花了半天。比較花時間的是搞清楚 mweb 的 HTML 結構，以及處理 GitHub Actions 環境的一些細節問題。
+整個過程用了一個主要的 Claude Code session（3/25，共約6小時）加一個 Codex session（4/01，約2小時），斷斷續續跨了將近一週。比較花時間的是搞清楚 mweb 的 HTML 結構，以及處理 GitHub Actions 環境和商品判斷邏輯的一些細節問題。

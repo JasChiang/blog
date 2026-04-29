@@ -160,7 +160,7 @@ draft: false
 
 #### 雲端方案：FLUX.1 Kontext
 
-**主推工具**：FLUX.1 Kontext（額度限制，2025/5/31 推出）  
+**主推工具**：FLUX.1 Kontext（額度限制，2025/5/29 推出）  
 **相關工具**：Midjourney、4o 圖像生成、Sora、Gemini 圖像生成、fal.ai、Replicate
 
 **特點**：免訓練、可保持高度一致性。
