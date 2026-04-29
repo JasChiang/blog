@@ -53,10 +53,10 @@ export const defaultContentPageLayout: PageLayout = {
       ],
     }),
     Component.Explorer(),
+    Component.DesktopOnly(Component.TableOfContents()),
   ],
   right: [
     // Component.Graph(),  // 知識圖譜：暫時隱藏，需要時把這行的註解 // 拿掉
-    Component.DesktopOnly(Component.TableOfContents()),
     Component.Backlinks(),
   ],
 }
