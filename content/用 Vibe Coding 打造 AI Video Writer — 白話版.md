@@ -5,8 +5,8 @@ category: vibe-coding
 tools: [Claude Code, Codex, Gemini CLI]
 models: [gemini-2.5-flash, gemini-2.5-pro, gemini-3-pro-preview, claude-sonnet-4.5, gpt-5.1, grok-4]
 project: AI Video Writer
-status: draft
-excerpt: "身為 YouTube 創作者，我用 vibe coding 的方式，靠 Claude Code、Codex 和 Gemini CLI 從零打造了一套影片轉文章、自動中繼資料生成、頻道數據分析的一站式工具。"
+status: published
+description: "身為 YouTube 創作者，我用 vibe coding 的方式，靠 Claude Code、Codex 和 Gemini CLI 從零打造了一套影片轉文章、自動中繼資料生成、頻道數據分析的一站式工具。"
 tags:
   - ai-practice
 ---
