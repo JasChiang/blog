@@ -19,6 +19,7 @@ draft: false
 >
 > - GitHub repo, [JasChiang/ga4-remote-mcp](https://github.com/JasChiang/ga4-remote-mcp) 的 README（若有）、commit 歷史與原始碼
 > - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-claude-----ga4-remote-mcp/`
+> - Codex CLI session 紀錄, `~/.codex/sessions/` 中與 ga4-remote-mcp 相關的幾個 session（2026-03-31、2026-04-10、2026-04-13）
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -94,6 +95,16 @@ Token store 有兩個 driver：memory 跟 postgres。沒有設 `SUPABASE_DB_URL`
 
 問題根源是 Render + Supabase 之間的冷啟動時序，Postgres pool 還沒暖起來，服務就被 health check 砍掉。解法是先讓 HTTP server listen，不等 DB，再用遞增延遲重試初始化，失敗超過門檻後換成背景每 30 秒重試一次，直到 store ready。`/debug/tcp` 是當時用來直接從 Render 容器測 Supabase pooler 與 Google 443 TCP 連通性的診斷工具，問題排清後留在程式裡沒有移除。
 
+### 2026-04-10 那波 Supabase 壓力分析
+
+4/9 的冷啟動問題解掉後不久，用兩個 agent 同時請求時又出現「Render 和 Supabase 都看起來正常，但 Render 一度連不上 Supabase DB」的症狀。這次用 Codex 做了一次比較細的追蹤。
+
+結論是，不是 GA4/GSC tool 本身在打 Supabase，問題出在 token 驗證路徑太重。每個進到 `/mcp` 的 HTTP request，光驗證 bearer token 就可能打出 8 個 SQL。原因是，`requireBearerAuth` 查一次，進 handler 後又查第二次，而每次 `getAccessTokenRecord()` 前都會先跑 3 個過期清理 `DELETE`，再做 `SELECT`。兩個 agent 同時平行發請求，這些查詢就會密集疊加。
+
+修法分幾個方向，把過期清理從「每次讀 token 順手做」改成背景定時執行，移除 `/mcp` handler 裡重複的 token 查詢，以及明確設定 `pg.Pool` 的 `max` 和 `idleTimeoutMillis`，避免連線池瞬間排死。
+
+這次修完還有一個附帶發現，原本 `/healthz` 即使 DB 連線出問題也會回 `200 ok`，因為 store error 被吃掉了。這讓 Render health check 看到「服務正常」但實際上 token store 已無法使用的假象。修掉這個後，`/healthz` 才真正反映 DB 狀態，Render 也能在 store 不可用時正確偵測到。
+
 ## 更多開發細節
 
 ### 站內搜尋 API 是逆向工程出來的
@@ -109,6 +120,14 @@ Remote HTTP MCP 部署上線後，我試了幾個 client，LM Studio、Open WebU
 LM Studio 的 stdio 模式需要先把 Google OAuth token 存成本地 JSON 檔，不走 server 那層 OAuth，第一次跑沒有檔案就直接報錯。Open WebUI 的 remote streamable MCP 模式，MCP server 需要在 `CLAUDE_ALLOWED_REDIRECT_HOSTS` 環境變數裡把 Open WebUI 的 domain 列入許可，否則 OAuth callback 會被擋掉，不會跳 Google consent 畫面。Open WebUI 設定介面右上角的 ID 欄位是它自己的內部識別 ID，不是填 OAuth client ID，這個 UI 很容易誤解。
 
 這些問題排完後，remote MCP 接進 Open WebUI 搭配本地模型的組合是可以跑的，只是當時本地模型的 tool use 品質和 Claude 差距還是很明顯。
+
+### Stdio 其實一開始就不是必要的
+
+加完 stdio 模式之後，4/13 在整理 README 時做了一個事後反思，這個 repo 最初就是 remote HTTP，stdio 是後來加的。問題是，其實一開始就不需要。
+
+Claude Code 在 2025-06-18 的 1.0.27 版就已支援 Streamable HTTP MCP，Codex CLI 也支援用 `--url` 接 streamable HTTP MCP server。也就是說，這兩個最主要的使用工具，從初版開始就可以直接接 remote HTTP，不需要再加一個 stdio 入口。
+
+Stdio 在這個 repo 裡比較像是「想支援更多本機 MCP client 的方便路徑」，而不是架構上必要的東西。它的實際作用是讓那些只支援 stdio 的 client 也能用，同時避免使用者要在本機跑 HTTP server 才能接。但如果一開始只打算支援 Claude Code 和 Codex CLI，remote HTTP 本身就夠了。
 
 ### Funnel Report 的 `z.undefined()` 事件
 

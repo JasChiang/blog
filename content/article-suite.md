@@ -19,6 +19,7 @@ draft: false
 >
 > - GitHub repo, [JasChiang/article-suite](https://github.com/JasChiang/article-suite) 的 README（若有）、commit 歷史與原始碼
 > - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-Documents-GitHub-article-suite/`
+> - Codex CLI 工作 session 紀錄, `~/.codex/sessions/`（2026/02–04 的 article-suite 相關 session）
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -52,7 +53,7 @@ draft: false
 
 **3 月，商品卡系統**，這是整個專案最重要的一次建設週。從零建出插入商品卡的完整工作流程，包含從實際文章 HTML 動態解析結構地圖、預覽確認步驟、以 HTML 註解標記識別多張卡片、以及連結失效掃描 + Gmail 通知的 GitHub Actions。
 
-**4 月，UI 整合與細節打磨**，重新設計 ArticleWorkspace 版面配置，讓操作動線更自然。加了 AEO v4 模板、Schema.org JSON-LD 自動注入（NewsArticle、FAQPage、Product、VideoObject），每條寫回 CMS 的路徑都會重新跑 schema 注入，確保前端重新套用卡片後 schema 不會掉。AI 生成卡片文案也是這個月加的，以前標題和 CTA 都是固定模板，現在讓 AI 根據文章語境調整說法。
+**4 月，UI 整合與細節打磨**，重新設計 ArticleWorkspace 版面配置，讓操作動線更自然。加了 AEO v4 模板、Schema.org JSON-LD 自動注入（NewsArticle、FAQPage、Product、VideoObject），每條寫回 CMS 的路徑都會重新跑 schema 注入，確保前端重新套用卡片後 schema 不會掉。AI 生成卡片文案也是這個月加的，以前標題和 CTA 都是固定模板，現在讓 AI 根據文章語境調整說法。AEO v4 模板在迭代過程中有一個明顯教訓，加太多 HTML 約束規則反而讓模型「太自由」，規則越多，模型越容易在不相關的地方補東西進去，例如把 JSON-LD schema 塞進文章內文、或是在非目錄目標的標題上亂加 `scroll-margin-top`。後來的修法是 HTML 骨架規則往 v3 收，只保留 AEO 語意結構的加強，「只靠 prompt 管 HTML 邊界」本身就不夠穩，能在後端做後處理的就移到後端做。
 
 ## 技術選擇
 
@@ -87,6 +88,12 @@ GitHub Actions 自動生文章的排程，pipeline 裡前後呼叫 Gemini API �
 **Proxy fetch 抓不到圖片，補了全頁截圖路徑**
 
 Proxy fetch 實作把 HTML 裡所有標籤都用 regex 替換成空格，圖片 URL 直接被丟掉，Gemini 看到的只有文字。解法是加了 Chrome headless 全頁截圖，對 `high_fidelity` 模式的每個參考 URL 都截一張 PNG，以 multimodal 方式讓 Gemini「看」頁面，圖文都能一起餵進去。這條路徑後來也發現分類頁的商品圖是 lazy load 用 `data-src` 不是 `src`，所以圖片擷取邏輯也從只抓 `src` 改成優先抓 `data-src`，才能正確拿到真實圖片 URL。
+
+**商品卡進 CKEditor 編輯模式就壞掉，從編輯器問題轉為 HTML 問題**
+
+插入商品卡後，在唯讀預覽看起來正常，進入可編輯模式就跑版，閱讀更多卡會被拆成一堆零碎連結，商品卡圖片會多出藍色邊框。第一反應是 CKEditor 設定問題，但查了之後發現是兩條渲染路徑根本不同，唯讀是把 HTML 直接塞進 `iframe srcDoc`，可編輯是讓 CKEditor 4 重新 parse 一遍再畫出來，`allowedContent: true` 只是不過濾屬性，不代表 CKEditor 不會重組 DOM。
+
+這個專案用的是公司內容平台現有的 CKEditor，不可能改編輯器設定。所以解法反過來，讓卡片 HTML 本身符合「CKEditor 4 會穩定保留的結構」，主要是兩條規則，閱讀更多卡不能用整張卡片外包一個 `<a>`，商品卡圖片不能放在 `<a>` 裡面，這兩種寫法是 CKEditor 4 最容易改寫的模式。改完之後移除功能完全不受影響，因為移除靠的是 HTML 註解標記，跟外層結構無關。
 
 ## 心得
 

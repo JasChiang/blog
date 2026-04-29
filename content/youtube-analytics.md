@@ -12,25 +12,23 @@ draft: false
 ![youtube-analytics hero](attachments/youtube-analytics-hero.png)
 
 > [!info] 本文由來
-> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
+> 這篇是 Claude Code 整理 `youtube-analytics` repo 的 README、commit 歷史與原始碼後，由作者審稿發布。補充材料來自 Codex CLI sessions（`~/.codex/sessions/`）與 `repo-stories.md` 的 repo 整理記錄。
 >
-> 整理依據，
->
-> - GitHub repo, `youtube-analytics`（private repo） 的 README（若有）、commit 歷史與原始碼
+> 原始素材建立於 2026/01/06。
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
 ## 起因
 
-當時我管的 YouTube 頻道已經有一陣子，但查資料的流程很繁瑣，每次想知道某支影片的留存率或流量來源，都要打開 YouTube Studio，在不同分頁間切換，把數字截圖下來，再手動貼進 Claude 問分析。
+在做 `youtube-analytics` 之前，我其實已經有一個叫 `youtube-analyzer` 的 Web 儀表板，是用來查看頻道數據的前端介面。問題是，每次想知道某支影片的留存率或流量來源，還是要先打開儀表板，在不同分頁間切換，把數字截圖下來，再手動貼進 Claude 問分析。
 
-Claude 支援 MCP，理論上可以讓 AI 直接呼叫外部工具拿資料。YouTube 有官方 API，Google Cloud Console 可以拿到 OAuth 憑證。把這兩件事連起來，用 Claude Code 直接刻，感覺不用太久。
+Claude 支援 MCP，理論上可以讓 AI 直接呼叫外部工具拿資料，不需要靠人工中介。YouTube 有官方 API，Google Cloud Console 可以拿到 OAuth 憑證。把這兩件事連起來，用 Claude Code 直接刻，感覺不用太久。
 
 這就是 `youtube-analytics` 的起點，一個用來驗證想法的快速原型。
 
 ## 主要功能
 
-這個版本用 TypeScript 寫，核心依賴是 `googleapis`（Google 官方 SDK）和 `@modelcontextprotocol/sdk`。工具清單包含：
+這個版本用 TypeScript 寫，核心依賴是 `googleapis`（Google 官方 SDK）和 `@modelcontextprotocol/sdk`。工具清單如下，
 
 - **OAuth 認證**，`youtube_get_auth_url` 產生授權 URL，`youtube_authorize` 完成 token 交換，token 存在本機 `token.json`
 - **頻道與影片查詢**，列出頻道、讀取影片清單和詳細資料
@@ -41,11 +39,13 @@ Claude 支援 MCP，理論上可以讓 AI 直接呼叫外部工具拿資料。Yo
 
 ## 開發過程
 
-`Initial commit` 在 2026/01/06 早上落地，是完整的 MCP server 骨架，OAuth 流程、YouTube API 包裝、工具定義都在。
+`Initial commit` 在 2026/01/06 落地，是完整的 MCP server 骨架，OAuth 流程、YouTube API 包裝、工具定義都在。
 
 接著補了「登入持久化 + 改善搜尋」，讓重啟 server 後不需要重新跑 OAuth，並讓影片搜尋更好用。然後加了群組功能，又馬上 revert 掉，「關閉群組功能」和隨後的 revert commit 說明了這段來回，群組功能的 YouTube Analytics API 有獨立的配額與權限要求，當下判斷不值得為了這個功能增加設定複雜度。
 
 整個 repo 的 commit history 只有五條，週期不到一天，典型的 vibe coding 節奏，快速驗證、發現問題、決定取捨。
+
+配額的問題在 prototype 還沒跑滿一天就出現了。`youtube_list_channel_videos` 每次分頁都打一次 YouTube Data API，很快就碰到配額警告。隔天（2026/01/07），我另外做了一個極簡的 `youtube-analytics-simple-cache`，只抓 `videoId` 和 `title`，存到 GitHub Gist，讓查詢可以先走 Gist、不消耗 YouTube 配額。這兩個工具是前後腳完成的，加在一起才算是完整回答了「怎麼讓 AI 查影片資料又不把配額燒光」這個問題。
 
 ## 技術選擇
 
@@ -65,7 +65,11 @@ Claude 支援 MCP，理論上可以讓 AI 直接呼叫外部工具拿資料。Yo
 
 ## 心得
 
-（TODO 補上）
+做這個 prototype 最大的收穫，不是「MCP 能跑」，而是親身感受到兩件事。
+
+第一，**工具的精簡比功能的完整更重要**。群組功能的 add → revert 這段來回，讓我意識到 MCP tool list 越長，AI 在組合呼叫時出錯的機會就越多，設定也越複雜。只留真正常用的 tool，讓 Claude 的判斷空間縮小，反而更可靠。後來在設計 `youtube-analytics-mcp-server` 的時候，我刻意沒有把所有 YouTube API 的功能都包進去，這個決定就是從這裡來的。
+
+第二，**quota 管理從一開始就要考慮，不能留到後期**。第一版完全沒有快取，是因為當時想先確認「OAuth 能不能跑通、Claude 能不能拿到資料」這個核心假設。假設確認後，配額問題馬上就出現了，隔天就另外做了 simple-cache。如果一開始就把快取設計進去，prototype 會更慢，但也不會在剛驗證成功的時候立刻碰壁。這是 vibe coding 的代價，也是它的特性，先跑起來，再解決跑起來之後才發現的問題。
 
 ## 結語
 

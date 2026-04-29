@@ -18,6 +18,7 @@ draft: false
 > 整理依據，
 >
 > - GitHub repo, `youtube-analytics-mcp-server`（private repo） 的 README（若有）、commit 歷史與原始碼
+> - Codex CLI session（2026-02-05），記錄了 MCP server 實際使用中踩到的 API 坑與後續功能補充
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -44,6 +45,8 @@ draft: false
 
 ## 開發過程
 
+這個 repo 其實不是從零開始，之前有一個更早的版本（`youtube-analytics`），只能讀資料，沒有寫入、沒有快取、配額也沒追蹤。用了一段時間後發現功能不夠，才重新做了這個進階版，支援影片標題描述更新、多層快取、配額監控。
+
 最早的版本（`Initial commit`）只有基本的影片列表和 analytics 查詢，用 stdio 模式跑，OAuth token 存在本機的 `.youtube-tokens.json`。
 
 後來加了**大量搜尋**功能，然後發現一個問題，每次問「最近表現最好的影片是哪幾支」，Claude 都會去呼叫 `youtube_list_videos`，每次都消耗配額，每日 10,000 點很快就用完了。
@@ -51,6 +54,14 @@ draft: false
 這促成了 **Gist 快取**的設計，把影片清單快取進一個 GitHub Gist，`youtube_list_videos` 和 `youtube_search_videos` 優先讀 Gist，API 呼叫只在快取不存在或刷新時觸發。這個設計後來也和另一個工具（`ai-video-writer`）共用同一份 Gist 格式，讓兩邊資料保持一致。
 
 再後來，我希望能在不同裝置上用 Claude.ai 查，而不是只有本機，所以把 server 改成支援遠端 HTTP 模式，加了完整的 OAuth bridge，讓 Claude connector 透過標準 OAuth 流程授權，Google refresh token 不用暴露在 Render 環境變數裡。最後用 Supabase Postgres 持久化 token，這樣 Render 重啟後 session 不會掉。
+
+在實際使用過程中，也踩到了幾個 API 的坑，促成後續的功能補充。
+
+**`creatorContentType` 問題**。最初在週報裡判斷影片是 Shorts 還是長片，agent 用的是片長或標題裡有沒有 `#shorts`。跑了幾次後發現有些 Shorts 被錯判，原因是 YouTube Data API 回傳的是 `categoryId`（內容分類，例如「科技」）而不是格式分類，片長也不可靠。正確做法是要用 YouTube Analytics API 的 `creatorContentType` 維度，YouTube 才會直接告訴你這支是 SHORTS 還是 VIDEO。這個問題在使用中暴露之後，馬上補進了 `ANALYTICS_DIMENSIONS` 常數並 commit 上去。
+
+**`analytics filters` 與 `sort` 補強**。同樣是在實際查詢中，發現幾個 tools 的參數不夠彈性，沒辦法針對特定影片過濾、也沒辦法排序。於是在 `youtube_get_channel_analytics`、`youtube_get_traffic_sources`、`youtube_get_search_terms` 上都加了 `filters` 和 `sort` 參數，讓 Claude 能更精確地組合查詢。
+
+**「續看觀眾比率」的 API 限制**。YouTube Studio 的 Shorts 頁面有一個「Stayed to watch」指標，顯示一個像 15% 的單一百分比。我以為 API 能拿到這個數字，花了一段時間才搞清楚，這個指標目前沒有對應的公開 API 欄位。API 提供的是 `audienceWatchRatio`（搭配 `elapsedVideoTimeRatio` 維度），回傳的是整條留存曲線，不是單一百分比。Studio 顯示的那個數字是 Studio 自己計算的 UI 指標，沒辦法直接從 Analytics API 撈出來。這個限制現在已記錄在 skill 文件裡，避免之後又花時間查。
 
 ## 技術選擇
 

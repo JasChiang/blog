@@ -19,6 +19,7 @@ draft: false
 >
 > - GitHub repo, [JasChiang/baha-chat](https://github.com/JasChiang/baha-chat) 的 README（若有）、commit 歷史與原始碼
 > - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-claude-----baha-chat/`
+> - Codex CLI 工作 session 紀錄, `~/.codex/sessions/2026/03/`
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -100,6 +101,38 @@ BBS 的編輯器是「鍵盤介面」，agent 操作它的方式和人類一模�
 另一個有趣的地方是回文引言的排版邏輯。BBS 回文時可以選擇是否引用原文，引用之後游標落在文件開頭，這時 agent 要把回文內容插到引言之後，必須先跳到檔案末尾，否則內容會插到引言前面，順序整個錯亂。這個行為不算 bug，是 BBS 編輯器的既有設計，但 agent 沒被明確告知的話通常會踩到。
 
 針對長文回覆還有個從實測中跑出來的技巧，BBS 對引言行數有上限，超過就會彈出警告。解法是利用 BBS 的「簽名檔分隔」慣例，在回文內容和簽名之後再加一個 `--`，引言放在第二個 `--` 後面，這樣引言就落在簽名檔區域，不被計入引言統計，不需要手動刪掉引言行。
+
+## 用 Codex CLI 跑起來的幾個插曲
+
+寫完 baha-chat 之後，我用 Codex CLI（GPT-5 模型）在這個 repo 繼續做了一些後續整合，過程中又踩了幾個跟 Claude Code 開發期不同的坑。
+
+### Codex CLI 的設定層級
+
+第一件事是把 baha-chat 接進 Codex CLI 的工具鏈，也就是讓 Codex 在工作時可以直接呼叫 baha-chat MCP。
+
+全域設定在 `~/.codex/config.toml`，我不想污染全域，但也不確定 Codex CLI 有沒有專案層級的設定機制。測試之後發現，在 repo 根目錄放一個 `.codex/config.toml` 就能生效，不會影響全域設定。
+
+```toml
+[mcp_servers.baha-bbs]
+command = "node"
+args = ["/path/to/baha-chat/dist/index.js"]
+```
+
+這個設定只在進入這個目錄時生效，很乾淨。
+
+### `bbs_auto_login` 的時序問題
+
+開發期間 `bbs_auto_login` 一直正常，但 Codex 跑起來時偶爾會卡在「錯誤的使用者代號」。追了一輪之後發現是時序問題，auto_login 在 BBS 還沒顯示「請輸入勇者代號」提示之前就先送出帳號，結果字串被吃掉或落在錯誤的輸入框。
+
+正確的流程是「connect 之後，先等到可視畫面出現帳號輸入提示，再送帳號，再等密碼提示，再送密碼」。固定延遲在這裡不夠用，需要讀畫面確認狀態再行動，就是 xterm headless 那一套的邏輯。
+
+### 讀 Chat 板 20 篇文章來調 AI 語氣
+
+把 baha-chat 接好之後，我寫了一個 `post-to-bbs` skill，讓 Codex 可以照一套固定流程進板、讀文章、用接近板上語氣回文。
+
+語氣是個有趣的問題。最初的 preset 是泛用口語，但實際在 Chat 板跑了幾輪之後，板友一眼就認出「AI 發文」，有人直接在文章裡點出「標點位置不對」是辨認 AI 的方式之一。
+
+後來我讓 Codex 直接讀了最近 20 篇文章（64228–64247），做語氣分析後直接修 skill。結論是，Chat 板的典型回文模式是「引述後 1-3 行短回」、`XD`/`XDD` 不定期出現、標點鬆散自然不規則，有時完全沒有句尾標點。這些特徵被寫進 skill 的 `TONE_PRESETS.md`，新增了一個 `chat_meme` preset 給梗串使用。
 
 ## 結語
 

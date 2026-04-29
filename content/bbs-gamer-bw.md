@@ -12,13 +12,9 @@ draft: false
 ![巴哈姆特 BBS 白底黑字主題概念圖](attachments/bbs-gamer-bw-hero.png)
 
 > [!info] 本文由來
-> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
+> 這篇是整理 GitHub 專案 [bbs-gamer-bw](https://github.com/JasChiang/bbs-gamer-bw) 的開發紀錄，由 Claude 協助結構化成文章後審稿發布。
 >
-> 整理依據，
->
-> - GitHub repo, [JasChiang/bbs-gamer-bw](https://github.com/JasChiang/bbs-gamer-bw) 的 README（若有）、commit 歷史與原始碼
->
-> 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
+> 文章開頭的概念圖是用 **Codex CLI 內建的 image_gen 工具**生成。
 
 ## 起因
 
@@ -57,7 +53,11 @@ draft: false
 
 ## 心得
 
-（TODO 補上）
+這個腳本比預期的更細。最初以為把 `b0` 換白、`q15` 換黑就差不多了，實際動手才發現要處理的地方一個接一個，連結顏色、選取反白、游標、捲軸，甚至彈出視窗都要照顧到，不然整個頁面就顯得零零落落，某個地方還是突兀地黑著。
+
+另一個沒想到的細節是 `GM_addStyle` 的備援。乍看之下這個 API 很普通，各家管理器都有支援，但保險起見還是寫了備用路徑，用 `document.createElement('style')` 直接插入，並且在 `document.head` 還不存在的情況下（`@run-at document-start` 真的很早），再包一層 `DOMContentLoaded` 等待。這幾行程式碼加起來不多，但讓腳本在極端環境下也能正常運作。
+
+用 AI 輔助寫腳本的過程很順，從「想要白底黑字」到可運作的版本只花了很短的時間，主要的迭代都在調 ANSI 16 色的對應值，逐一確認每個顏色在白底上看起來不突兀。這種「對照表型」的工作本來很繁瑣，有 AI 協助比對和生成 CSS 讓整個流程快了不少。
 
 ## 結語
 

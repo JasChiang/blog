@@ -17,7 +17,8 @@ draft: false
 >
 > 整理依據，
 >
-> - GitHub repo, [JasChiang/seo-content-generator](https://github.com/JasChiang/seo-content-generator) 的 README（若有）、commit 歷史與原始碼
+> - GitHub repo, [JasChiang/seo-content-generator](https://github.com/JasChiang/seo-content-generator) 的 README、commit 歷史與原始碼
+> - Codex CLI 開發 session 紀錄（2026/01）
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -52,6 +53,8 @@ draft: false
 
 生成的草稿存在系統裡，可以在瀏覽器上直接編輯，確認後匯出成 Markdown 或 HTML。
 
+後來又加了兩個延伸分析模組。一個是**歸因分析**，追蹤「讀者從哪篇文章進來、後來有沒有走到商品頁或產生轉換」，幫助判斷哪些文章真的有帶貨價值。另一個是**使用者旅程分析**，可以用文章標題或路徑搜尋單篇文章，看到它的流量來源分布、登入頁與離開頁，方便診斷個別文章的問題。
+
 ## 開發過程
 
 從第一個 commit 到基本功能跑起來，過程比想像中快，但有幾個卡點值得記一下。
@@ -61,6 +64,10 @@ draft: false
 **GA4 的 API 和舊的 Universal Analytics 差異很大。** landingPage 維度的追蹤方式改了，要用 `landingPage` 加上 `pageReferrer` 兩個維度搭配才能正確追蹤內容助攻轉換，這個問題踩了一個下午。
 
 **主題分析的「去重」是個設計重點。** 六種策略同時跑，同一個關鍵字可能在不同策略下都出現。最後用 keyword 做 key，只保留分數最高的那筆，避免清單被重複項目塞滿。
+
+**Python 版本和 protobuf 衝突。** 最初選 `google-analytics-data 0.18.2`，在 Python 3.13 上跑到 protobuf 6.x 時報了 "Metaclasses with custom tp_new are not supported" 錯誤，GA4 API 完全呼叫不了。升到 0.20.0 才解決，同時鎖定不用 Python 3.14，因為當時 3.14 的相容性還不穩定。這類 "library 組合地雷" 很難靠文件預測，只能碰壁了才知道。
+
+**Render 部署的 SQLite 陷阱。** 用 Render 免費方案跑時，才發現它的 filesystem 是 ephemeral 的，每次重啟後 SQLite 資料庫都會清空。開發測試階段無感，但一上正式環境馬上踩坑。最後加了切換 PostgreSQL 的文件說明，讓有需要的人知道怎麼遷移。
 
 部署選了 Render，用 `render.yaml` 做自動部署，把 build command 和環境變數都定義好，推到 GitHub 就自動上線，維運成本很低。
 
@@ -78,7 +85,11 @@ draft: false
 
 ## 心得
 
-（TODO 補上）
+開發這個工具最大的收穫，是把一個原本「靠人工判斷」的流程拆解成可以程式化的邏輯。找 SEO 題目這件事乍看像是直覺判斷，但仔細拆開來，每一步都有明確的資料依據。哪些字曝光高但沒人點，哪些字有搜尋量但沒文章，哪些字排名比應有的 CTR 低，這些都可以從數字算出來。
+
+AI 生成草稿的部分，我對 Perplexity Sonar Pro 的即時搜尋能力印象不錯。一般 LLM 寫 SEO 文章容易用訓練資料裡的舊資訊，但 Sonar Pro 會先搜尋再生成，在寫「最新旗艦手機比較」或「現在怎麼辦 XX 手續」這類時效性內容時，品質明顯比較可靠。
+
+另一個體會是，Prompt 外掛化值得早做。我把 system prompt 放進獨立的 `prompts.yaml`，之後調整語氣、字數、格式要求都不用動 Python 程式碼，改完直接重啟就生效，維護比寫死在程式裡輕鬆很多。
 
 ## 結語
 

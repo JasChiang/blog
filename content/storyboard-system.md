@@ -13,12 +13,13 @@ draft: false
 ![AI 驅動分鏡系統概念圖](attachments/storyboard-system-hero.png)
 
 > [!info] 本文由來
-> 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
+> 這是一份由 **Claude Code 與 Codex CLI 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
 > 整理依據，
 >
-> - GitHub repo, `storyboard-system`（private repo） 的 README（若有）、commit 歷史與原始碼
-> - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-GitHub-storyboard-system/`
+> - GitHub repo `storyboard-system`（private repo）的 README（若有）、commit 歷史與原始碼
+> - Claude Code 工作 session 紀錄，`~/.claude/projects/-Users-jaschiang-GitHub-storyboard-system/`
+> - Codex CLI session 紀錄，`~/.codex/sessions/`（2026/03 與 2026/04 的 storyboard-system sessions）
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -88,6 +89,20 @@ GPT Image 2 有個和 nano banana pro 不一樣的參數系統，不是填 width
 
 晚期的迭代還集中在**工程品質補強**，引入 structured API error envelope、LLM usage log、API 路由統一的 error 處理。這些對 vibe-coding 出來的系統格外重要，因為 AI 生成的程式碼往往在 error handling 最隨便，要另外花力氣補。
 
+### 腳本「吸引力」的前置設計化
+
+做了幾輪實際測試之後，我發現一致性只解決了「不漂移」，但沒解決「有沒有人想看」。原本的 second-pass 修正器只檢查合理性和視覺一致性，幾乎不看觀看吸引力，所以腳本容易穩但平。
+
+解法是在 Scene schema 加入 `hookScore`（1-5）、`hookScoreReason`、`retentionRisk`，以及場景級的 `referencePlan`，讓模型在第一輪就輸出這些欄位，second-pass 也改成會檢查「開場第一鏡是否有明確 Hook、中段有沒有留存節奏、結尾是否收得住」。這樣吸引力變成前置設計，而不是生完再評。
+
+同時補了一個 `referencePlan` 解析器，把原本散落在 `charactersUsed`、`requiredReferences`、`referenceViewHints` 的資訊收斂成一份場景級的已解算計畫。這樣圖片生成和影片生成才不會各自猜一次，而是讀同一份場景意圖。這個設計上的靈感來自研究 Jellyfish 專案時的收穫，它把一致性問題拆成「全域資產庫、專案快照、跨分鏡參考圖、提示詞模板」幾層的思路，讓我確認自己缺的是場景層面的 reference 治理，而不是再加一個角色庫頁面。
+
+### 配音與配樂的接入
+
+影片生成之後，系統接了兩條音訊管線，分別走不同服務。旁白用 IndexTTS2，配樂用 ElevenLabs。兩者都是在分鏡腳本生成之後才能配，因為要對準影片時間軸。
+
+這部分跑在一個獨立的 `external/openreel-video` 子服務裡（port 5173），和主系統的 Next.js app（port 5100）分開啟動。fluent-ffmpeg 負責最後的混音合成，把旁白、配樂、原始影片素材合成為最終輸出。
+
 ## 技術選擇
 
 技術選型對齊我慣用的 stack，沒有為了新穎而新穎。
@@ -102,6 +117,8 @@ GPT Image 2 有個和 nano banana pro 不一樣的參數系統，不是填 width
 | AI 影片 | Fal AI (Kling / Seedance) | 目前品質與價格的平衡點 |
 | 腳本 | OpenRouter → Claude | 彈性切換模型，不綁死單一 provider |
 | 影片處理 | fluent-ffmpeg | 本機音軌合成、旁白混音 |
+| 旁白 | IndexTTS2 | 分鏡腳本生成後配音，走 openreel-video 子服務 |
+| 配樂 | ElevenLabs | 與旁白分開管線，同樣走 openreel-video |
 
 LocalStorage 做持久化這件事，算是 vibe-coding 工具的典型選擇，因為部署成本為零。但資料量一大就需要考慮遷移，這個系統後來加了 SQLite 就是因為專案多了之後 localStorage 開始不夠用。
 

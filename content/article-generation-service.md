@@ -19,6 +19,7 @@ draft: false
 >
 > - GitHub repo, `article-generation-service`（private repo） 的 README（若有）、commit 歷史與原始碼
 > - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-Documents-GitHub-article-generation-service/`
+> - Codex CLI session 紀錄（2026-01-27，2 sessions），處理了 `htmlToMarkdown` 異步與 port 動態化，內容與 Claude session 高度重疊
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
@@ -27,6 +28,8 @@ draft: false
 在工作上我們有一個反覆出現的需求，把 YouTube 影片或指定網址的內容，透過 AI 整理成格式固定的 Markdown 文章，再發布到 Notion。
 
 一開始這件事是靠幾支各自獨立的 Node.js 腳本完成，每次改 prompt 或接新的輸入格式，就要去不同地方改程式。改完還要叫同事跑本地環境，操作門檻不低。
+
+更早的前身是 `ai-video-writer`，那個版本的文章生成邏輯和影片處理耦合在一起，兩件事攪在同一個 repo 裡難以維護。`article-generation-service` 就是把文章生成這塊獨立抽出來，做成一個專屬的後端 API 加前端工作台。
 
 後來決定把這套流程做成一個獨立服務，前後端一起，讓不懂程式的人也能直接用瀏覽器操作。
 
