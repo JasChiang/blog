@@ -7,7 +7,7 @@ tags:
   - vibe-coding
 ---
 
-![用 Vibe Coding 打造 AI Video Writer](attachments/ai-video-writer-hero-v11.png)
+![用 Vibe Coding 打造 AI Video Writer](attachments/ai-video-writer-hero-v12.png)
 
 > [!info] 專案資訊
 > - **專案**：AI Video Writer
