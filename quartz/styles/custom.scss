@@ -1,3 +1,15 @@
 @use "./base.scss";
 
-// put your custom CSS here!
+// 探索 sidebar 標題太長時，限制兩行 + ellipsis，避免擠滿
+.explorer-content {
+  & ul li > a {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+    margin: 0.15rem 0;
+    word-break: break-word;
+  }
+}
