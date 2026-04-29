@@ -17,7 +17,7 @@ draft: false
 >
 > 整理依據，
 >
-> - GitHub repo, [JasChiang/article-generation-service](https://github.com/JasChiang/article-generation-service) 的 README（若有）、commit 歷史與原始碼
+> - GitHub repo, `article-generation-service`（private repo） 的 README（若有）、commit 歷史與原始碼
 > - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-Documents-GitHub-article-generation-service/`
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。

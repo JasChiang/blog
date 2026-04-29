@@ -17,7 +17,7 @@ draft: false
 >
 > 整理依據，
 >
-> - GitHub repo, [JasChiang/banana-context](https://github.com/JasChiang/banana-context) 的 README（若有）、commit 歷史與原始碼
+> - GitHub repo, `banana-context`（private repo） 的 README（若有）、commit 歷史與原始碼
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 

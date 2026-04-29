@@ -17,7 +17,7 @@ draft: false
 >
 > 整理依據，
 >
-> - GitHub repo, [JasChiang/youtube-analytics-mcp-server](https://github.com/JasChiang/youtube-analytics-mcp-server) 的 README（若有）、commit 歷史與原始碼
+> - GitHub repo, `youtube-analytics-mcp-server`（private repo） 的 README（若有）、commit 歷史與原始碼
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 
