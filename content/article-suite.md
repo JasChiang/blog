@@ -35,7 +35,7 @@ draft: false
 
 整個工作台分成三個主要分頁。
 
-**生成新文章**，支援四種素材來源，YouTube 公開或非公開影片、一般網址、純主題文字、上傳 PDF 或圖片檔。Gemini 讀完素材後產出完整 HTML 文章，並一併給三個 SEO 標題備選和 meta description。影片來源還能讓 AI 規劃截圖時間點，用 ffmpeg 截出圖片插入文章。文章配圖走 fal.ai 的 `fal-ai/flux/schnell`，會先讓 LLM 根據文章內容生提示詞，再送去生圖，縮圖和內文圖都能一次生好。
+**生成新文章**，支援四種素材來源，YouTube 公開或非公開影片、一般網址、純主題文字、上傳 PDF 或圖片檔。Gemini 讀完素材後產出完整 HTML 文章，並一併給三個 SEO 標題備選和 meta description。影片來源還能讓 AI 規劃截圖時間點，用 ffmpeg 截出圖片插入文章。文章配圖走 fal.ai SDK（`@fal-ai/client`），可在 **`nano-banana-pro`** 跟 **`gpt-image-2`** 之間切換，預設用 nano-banana-pro，會先讓 LLM 根據文章內容生提示詞再送去生圖，縮圖跟內文圖都能一次生好。
 
 **編輯既有文章**，輸入 CMS 文章 ID 就能把文章拉回來，在 CKEditor 5 裡修改，修完再推回 CMS。插入商品卡的功能也在這裡，貼上商品或分類頁 URL，程式抓資料後 AI 生成卡片文案，選好插入位置，預覽確認後一鍵寫入文章並同步更新 CMS。商品卡連結會自動帶上自製追蹤 query param，讓成效資料可以歸因到哪篇文章帶來的導流。
 
