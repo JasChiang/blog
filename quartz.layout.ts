@@ -24,6 +24,10 @@ export const defaultContentPageLayout: PageLayout = {
     Component.ArticleTitle(),
     Component.ContentMeta(),
     Component.TagList(),
+    Component.ConditionalRender({
+      component: Component.TableOfContents(),
+      condition: (page) => page.fileData.slug !== "index",
+    }),
   ],
   afterBody: [
     Component.ConditionalRender({
@@ -52,7 +56,6 @@ export const defaultContentPageLayout: PageLayout = {
   ],
   right: [
     // Component.Graph(),  // 知識圖譜：暫時隱藏，需要時把這行的註解 // 拿掉
-    Component.DesktopOnly(Component.TableOfContents()),
     Component.Backlinks(),
   ],
 }
