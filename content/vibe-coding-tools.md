@@ -72,6 +72,9 @@ YouTube API 有額度限制。我用 GitHub Actions 每日定期擷取「影片�
 
 ## 3. 文章生成器
 
+> [!tip] 相關文章
+> 完整開發故事可以看 [[article-suite|把文章生產線塞進一個工作台，article-suite 開發記]]。
+
 這個工具是從前述「YouTube 內容助理」的「文章生成」功能派生而來，獨立成可以單跑的版本。
 
 ### 多來源輸入
@@ -118,6 +121,9 @@ YouTube API 有額度限制。我用 GitHub Actions 每日定期擷取「影片�
 
 可以說是前面「YouTube 內容助理」數據分析部分的 MCP Server 版。同樣也有使用 Gist 中的快取資料來節省查詢額度。
 
+> [!tip] 相關文章
+> 完整開發故事可以看 [[youtube-analytics-mcp-server|用 MCP 把 YouTube Analytics 接進 Claude，順便解決 API 配額問題]]。
+
 ### 第二個，分析與策展 MCP
 
 接了 GA API、GSC API、Google Autocomplete、公司網站的 Front API 來查找商品與文章等工具。
@@ -126,13 +132,19 @@ YouTube API 有額度限制。我用 GitHub Actions 每日定期擷取「影片�
 
 > 等官方 Google Trends API 開放使用後，我也打算接上去。
 
+> [!tip] 相關文章
+> 完整開發故事可以看 [[ga4-remote-mcp|從 GA4 橋接器到多來源分析 MCP，ga4-remote-mcp 的演進]]。
+
 ---
 
 ## 5. 分鏡圖系統
 
+> [!tip] 相關文章
+> 完整開發故事可以看 [[storyboard-system|用 AI 做分鏡，從腳本到剪輯全自動，storyboard-system 開發紀錄]]。
+
 這個工具讓使用者輸入「需求」就能生成「分鏡腳本」，接著生成每個場景的「分鏡圖（靜態畫面）」與「影片片段」，最終在嵌入的 OpenReel 編輯器進行剪輯並匯出成片。
 
-> 註，還沒接上 Seedance 2.0，因為太貴了。目前比較少在用這個工具，直接在 fal 上試驗影片生成模型比較多。
+> 註，目前比較少在用這個工具，直接在 fal 上試驗影片生成模型比較多。
 
 ### 腳本生成
 
@@ -143,13 +155,13 @@ YouTube API 有額度限制。我用 GitHub Actions 每日定期擷取「影片�
 ### 圖片與影片生成
 
 - 依分鏡逐場生成靜態畫面
-- 對需要動態 Start Frame 與 End Freame 的場景，自動生成「**End Frame**」以確保鏡頭間的視覺延續
+- 對需要動態 Start Frame 與 End Frame 的場景，自動生成「**End Frame**」以確保鏡頭間的視覺延續
 - 影片支援 Kling、Seedance 兩種模型，輸出比例可選 16:9、9:16、1:1
 
 ### 配樂與旁白
 
 - 可生成整部影片的配樂（**ElevenLabs**）
-- 逐場景旁白（**IndexTTS**）
+- 逐場景旁白（**IndexTTS2**）
 - 旁白腳本自動轉為字幕疊加於時間軸
 
 ### 角色庫（素材管理）
