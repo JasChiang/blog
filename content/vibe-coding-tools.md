@@ -6,6 +6,7 @@ tags:
   - ai-practice
   - vibe-coding
   - dev
+image: attachments/vibe-coding-tools-hero-v12.png
 draft: false
 ---
 

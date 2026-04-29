@@ -5,6 +5,7 @@ description: 我把 Gen AI 工具當成內部溝通的加速器與測試工具�
 tags:
   - ai-practice
   - thinking
+image: attachments/ai-tool-hero-v11.png
 draft: false
 ---
 

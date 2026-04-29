@@ -5,6 +5,7 @@ description: 整理我在 2025 年實際使用 AI 工具輔助工作的方法、
 tags:
   - ai-practice
   - ai-tools
+image: attachments/ai-usage-2025-hero-v12.png
 draft: false
 ---
 
