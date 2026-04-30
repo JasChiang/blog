@@ -6,11 +6,11 @@ tags:
   - dev
   - vibe-coding
   - marketing-tools
-image: attachments/cms-publisher-hero.png
+image: attachments/cms-publisher-hero-v13.png
 draft: false
 ---
 
-![讓 Claude Code 串接公司 CMS API，從文章生成到自動發布](attachments/cms-publisher-hero.png)
+![讓 Claude Code 串接公司 CMS API，從文章生成到自動發布](attachments/cms-publisher-hero-v13.png)
 
 > [!info] 本文由來
 > 這篇整理自 GitHub repo 的 README、commit 歷史、原始碼，以及開發當時的 Codex CLI 對話紀錄，由 Claude 協助結構化後審稿發布。

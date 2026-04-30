@@ -5,11 +5,11 @@ description: 整理我在 2025 年實際使用 AI 工具輔助工作的方法、
 tags:
   - ai-practice
   - ai-tools
-image: attachments/ai-usage-2025-hero-v12.png
+image: attachments/ai-usage-2025-hero-v13.png
 draft: false
 ---
 
-![2025 年版 AI 使用經歷](attachments/ai-usage-2025-hero-v12.png)
+![2025 年版 AI 使用經歷](attachments/ai-usage-2025-hero-v13.png)
 
 > [!info] 本文由來
 > 這篇是我內部分享簡報「2025 年版 AI 使用經歷」的整理版，記錄當時我實際把 AI 工具用在工作上的方法與選擇。

@@ -5,10 +5,10 @@ description: "身為 YouTube 創作者，我用 vibe coding 的方式，靠 Clau
 tags:
   - ai-practice
   - vibe-coding
-image: attachments/ai-video-writer-hero-v12.png
+image: attachments/ai-video-writer-hero-v13.png
 ---
 
-![用 Vibe Coding 打造 AI Video Writer](attachments/ai-video-writer-hero-v12.png)
+![用 Vibe Coding 打造 AI Video Writer](attachments/ai-video-writer-hero-v13.png)
 
 > [!info] 專案資訊
 > - **專案**：AI Video Writer

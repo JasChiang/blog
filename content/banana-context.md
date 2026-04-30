@@ -6,11 +6,11 @@ tags:
   - dev
   - ai-practice
   - vibe-coding
-image: attachments/banana-context-hero.png
+image: attachments/banana-context-hero-v13.png
 draft: false
 ---
 
-![BananaContext hero](attachments/banana-context-hero.png)
+![BananaContext hero](attachments/banana-context-hero-v13.png)
 
 > [!info] 本文由來
 > 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。

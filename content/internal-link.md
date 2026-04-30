@@ -6,11 +6,11 @@ tags:
   - dev
   - marketing-tools
   - vibe-coding
-image: attachments/internal-link-hero.png
+image: attachments/internal-link-hero-v13.png
 draft: false
 ---
 
-![內部連結分析工具概念圖](attachments/internal-link-hero.png)
+![內部連結分析工具概念圖](attachments/internal-link-hero-v13.png)
 
 > [!info] 本文由來
 > 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。

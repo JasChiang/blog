@@ -6,11 +6,11 @@ tags:
   - dev
   - vibe-coding
   - marketing-tools
-image: attachments/ecom-app-monitor-hero.png
+image: attachments/ecom-app-monitor-hero-v13.png
 draft: false
 ---
 
-![電商 App 首頁影音版位監控](attachments/ecom-app-monitor-hero.png)
+![電商 App 首頁影音版位監控](attachments/ecom-app-monitor-hero-v13.png)
 
 > [!info] 本文由來
 > 這篇是我整理自己做這個小工具的過程，由 Claude Code 協助對照 repo commit 歷史與工作 session 紀錄草稿後，我審稿修訂發布。

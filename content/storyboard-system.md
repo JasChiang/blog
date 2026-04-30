@@ -6,11 +6,11 @@ tags:
   - vibe-coding
   - ai-practice
   - dev
-image: attachments/storyboard-system-hero.png
+image: attachments/storyboard-system-hero-v13.png
 draft: false
 ---
 
-![AI 驅動分鏡系統概念圖](attachments/storyboard-system-hero.png)
+![AI 驅動分鏡系統概念圖](attachments/storyboard-system-hero-v13.png)
 
 > [!info] 本文由來
 > 這是一份由 **Claude Code 與 Codex CLI 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。

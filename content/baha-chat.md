@@ -6,11 +6,11 @@ tags:
   - dev
   - vibe-coding
   - ai-tools
-image: attachments/baha-chat-hero.png
+image: attachments/baha-chat-hero-v13.png
 draft: false
 ---
 
-![baha-chat 概念圖](attachments/baha-chat-hero.png)
+![baha-chat 概念圖](attachments/baha-chat-hero-v13.png)
 
 > [!info] 本文由來
 > 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。

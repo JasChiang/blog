@@ -5,11 +5,11 @@ description: 2026 年初，我用 Claude Code 快速做了第一版 YouTube Anal
 tags:
   - dev
   - vibe-coding
-image: attachments/youtube-analytics-hero.png
+image: attachments/youtube-analytics-hero-v13.png
 draft: false
 ---
 
-![youtube-analytics hero](attachments/youtube-analytics-hero.png)
+![youtube-analytics hero](attachments/youtube-analytics-hero-v13.png)
 
 > [!info] 本文由來
 > 這篇是 Claude Code 整理 `youtube-analytics` repo 的 README、commit 歷史與原始碼後，由作者審稿發布。補充材料來自 Codex CLI sessions（`~/.codex/sessions/`）與 `repo-stories.md` 的 repo 整理記錄。

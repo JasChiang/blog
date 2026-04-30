@@ -6,11 +6,11 @@ tags:
   - dev
   - ai-practice
   - marketing-tools
-image: attachments/seo-content-generator-hero.png
+image: attachments/seo-content-generator-hero-v13.png
 draft: false
 ---
 
-![SEO 內容生成器概念圖](attachments/seo-content-generator-hero.png)
+![SEO 內容生成器概念圖](attachments/seo-content-generator-hero-v13.png)
 
 > [!info] 本文由來
 > 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。

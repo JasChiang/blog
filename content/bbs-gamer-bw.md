@@ -5,11 +5,11 @@ description: 用一支 Greasemonkey UserScript 把巴哈姆特 BBS 的黑底彩�
 tags:
   - dev
   - vibe-coding
-image: attachments/bbs-gamer-bw-hero.png
+image: attachments/bbs-gamer-bw-hero-v13.png
 draft: false
 ---
 
-![巴哈姆特 BBS 白底黑字主題概念圖](attachments/bbs-gamer-bw-hero.png)
+![巴哈姆特 BBS 白底黑字主題概念圖](attachments/bbs-gamer-bw-hero-v13.png)
 
 > [!info] 本文由來
 > 這篇是整理 GitHub 專案 [bbs-gamer-bw](https://github.com/JasChiang/bbs-gamer-bw) 的開發紀錄，由 Claude 協助結構化成文章後審稿發布。

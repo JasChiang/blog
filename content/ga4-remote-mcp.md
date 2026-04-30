@@ -6,11 +6,11 @@ tags:
   - dev
   - mcp
   - marketing-tools
-image: attachments/ga4-remote-mcp-hero.png
+image: attachments/ga4-remote-mcp-hero-v13.png
 draft: false
 ---
 
-![ga4-remote-mcp hero](attachments/ga4-remote-mcp-hero.png)
+![ga4-remote-mcp hero](attachments/ga4-remote-mcp-hero-v13.png)
 
 > [!info] 本文由來
 > 這篇是 Claude Code 依照 commit 歷史與 session 紀錄整理的開發回顧，由作者對照原始碼審稿校正後發布。

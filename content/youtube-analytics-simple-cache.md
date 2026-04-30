@@ -5,11 +5,11 @@ description: 打造一個每天只跑一次的 GitHub Actions workflow，把頻�
 tags:
   - dev
   - vibe-coding
-image: attachments/youtube-analytics-simple-cache-hero.png
+image: attachments/youtube-analytics-simple-cache-hero-v13.png
 draft: false
 ---
 
-![用 GitHub Gist 當快取，解決 YouTube API 配額焦慮](attachments/youtube-analytics-simple-cache-hero.png)
+![用 GitHub Gist 當快取，解決 YouTube API 配額焦慮](attachments/youtube-analytics-simple-cache-hero-v13.png)
 
 > [!info] 本文由來
 > 這篇是 Claude Code 根據 GitHub repo `youtube-analytics-simple-cache` 的 README、commit 歷史與原始碼整理的開發記錄，經作者審稿後發布。

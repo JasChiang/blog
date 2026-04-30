@@ -5,11 +5,11 @@ description: 用 Vite + TypeScript 做的純前端圖片處理工具，支援馬
 tags:
   - dev
   - vibe-coding
-image: attachments/image-tool-hero.png
+image: attachments/image-tool-hero-v13.png
 draft: false
 ---
 
-![純前端圖片編輯工具概念圖](attachments/image-tool-hero.png)
+![純前端圖片編輯工具概念圖](attachments/image-tool-hero-v13.png)
 
 > [!info] 本文由來
 > 這篇是整理自 GitHub repo 的 commit 歷史、原始碼，以及開發過程中的 Codex CLI session 紀錄，由 Claude Code 協助結構化成文章後審稿發布。

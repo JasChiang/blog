@@ -6,11 +6,11 @@ tags:
   - ai-practice
   - vibe-coding
   - dev
-image: attachments/article-suite-hero.png
+image: attachments/article-suite-hero-v13.png
 draft: false
 ---
 
-![article-suite 工作台概念圖](attachments/article-suite-hero.png)
+![article-suite 工作台概念圖](attachments/article-suite-hero-v13.png)
 
 > [!info] 本文由來
 > 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。

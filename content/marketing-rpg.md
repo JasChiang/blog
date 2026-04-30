@@ -6,11 +6,11 @@ tags:
   - dev
   - marketing
   - vibe-coding
-image: attachments/marketing-rpg-hero.png
+image: attachments/marketing-rpg-hero-v13.png
 draft: false
 ---
 
-![marketing-rpg hero](attachments/marketing-rpg-hero.png)
+![marketing-rpg hero](attachments/marketing-rpg-hero-v13.png)
 
 > [!info] 本文由來
 > 這篇是把開發過程的 commit log 整理成文章，由 Claude Code 協助結構化後審稿發布。

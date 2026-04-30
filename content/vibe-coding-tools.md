@@ -6,11 +6,11 @@ tags:
   - ai-practice
   - vibe-coding
   - dev
-image: attachments/vibe-coding-tools-hero-v12.png
+image: attachments/vibe-coding-tools-hero-v13.png
 draft: false
 ---
 
-![行銷人用 vibe coding 做工作小工具](attachments/vibe-coding-tools-hero-v12.png)
+![行銷人用 vibe coding 做工作小工具](attachments/vibe-coding-tools-hero-v13.png)
 
 > [!info] 本文由來
 > 這篇是我整理自己在 Facebook 社團「Generative AI 技術交流中心」於 2026/04/16 的一則發文，由 Claude 協助結構化成文章後審稿發布。

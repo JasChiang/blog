@@ -6,11 +6,11 @@ tags:
   - dev
   - mcp
   - ai-practice
-image: attachments/youtube-analytics-mcp-server-hero.png
+image: attachments/youtube-analytics-mcp-server-hero-v13.png
 draft: false
 ---
 
-![youtube-analytics-mcp-server hero](attachments/youtube-analytics-mcp-server-hero.png)
+![youtube-analytics-mcp-server hero](attachments/youtube-analytics-mcp-server-hero-v13.png)
 
 > [!info] 本文由來
 > 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
