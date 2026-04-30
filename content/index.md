@@ -1,5 +1,6 @@
 ---
 title: Jas 的筆記
+image: https://jasboughtit.com/og-image.png
 ---
 
 一個行銷從業人員的 AI 使用筆記，記錄工具實測、工作流嘗試、寫作與開發心得。
