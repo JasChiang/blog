@@ -1,5 +1,5 @@
 ---
-title: Vibe Coding 兩三年，我做的工作小工具
+title: Vibe Coding 一兩年，我做的工作小工具
 date: 2026-04-29
 description: 整理我這兩三年用 Vibe Coding 做的工作小工具，從 UTM 網址產生器、YouTube 內容助理、文章生成器、Remote MCP Server 到分鏡圖系統。每個都是為了解決自己工作流上的痛點。
 tags:
