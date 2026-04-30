@@ -73,7 +73,10 @@ const config: QuartzConfig = {
       Plugin.Description(),
       Plugin.Latex({ renderEngine: "katex" }),
     ],
-    filters: [Plugin.RemoveDrafts()],
+    filters: [
+      // 設 QUARTZ_INCLUDE_DRAFTS=true 可在本地預覽 draft 文章；正式 build 不要設
+      ...(process.env.QUARTZ_INCLUDE_DRAFTS === "true" ? [] : [Plugin.RemoveDrafts()]),
+    ],
     emitters: [
       Plugin.AliasRedirects(),
       Plugin.ComponentResources(),
