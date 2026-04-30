@@ -4,7 +4,7 @@ title: Jas 的筆記
 
 一個行銷從業人員的 AI 使用筆記，記錄工具實測、工作流嘗試、寫作與開發心得。
 
-> [!info] 關於這個 blog 的寫作流程
+> [!info]- 關於這個 blog 的寫作流程
 > 文章在這裡分兩類，請依每篇開頭的「本文由來」callout 為準。
 >
 > **已審稿文章**，內容大多根據我在 Threads、Facebook 社團、內部簡報或 Obsidian 上的筆記為素材，由 **Claude Code** 協助結構化與改寫，最後由我人工審稿後發布。
@@ -17,7 +17,7 @@ title: Jas 的筆記
 >
 > 文章開頭的 hero 圖一律由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI 的圖像模型），依每篇文章內容調整視覺方向。
 
-> [!note] Claude Code 怎麼呼叫 Codex CLI
+> [!note]- Claude Code 怎麼呼叫 Codex CLI
 > 整理過程裡 Claude Code 會把 Codex CLI 當 subprocess 用，主要走 `codex exec --full-auto --skip-git-repo-check "<prompt>"` 這個指令，包成一般的 Bash 呼叫，讓兩邊 CLI 接上。實際用途有三塊，
 >
 > - **生 hero 圖**，把整篇 markdown 連同 16:9 比例與台灣繁體渲染要求一起丟給 Codex，由 Codex 擔任 art director 自選風格、寫 visual concept，再呼叫 `image_gen` 工具（OpenAI gpt-image-2 模型）輸出 PNG，輸出檔放在 `~/.codex/generated_images/<session-id>/ig_*.png`，由 Claude Code 再 `cp` 到 attachments。
