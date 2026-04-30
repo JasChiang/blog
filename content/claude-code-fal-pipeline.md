@@ -1,7 +1,7 @@
 ---
-title: 用 Claude Code 操作 AI 圖片與影片生成的兩種模式，我的實際工作流
+title: 用 Claude Code 直接呼叫 fal 生影片，從 storyboard 規劃到 .mjs 腳本的完整工作流
 date: 2026-04-30
-description: 整理我用 Claude Code 跑 AI 圖片與影片生成的兩種主要模式，一是把 fal.ai 模型整合進自己做的工具（如 storyboard-system）內部使用，二是用 Codex CLI image_gen 做臨時的 batch 生成（如 blog hero 圖）。記錄踩過的中文渲染坑與 session 隔離 pattern。
+description: 過去兩週做家電品牌的短影片素材，記錄怎麼用 Claude Code 把 storyboard 規劃、prompt skill 草擬、.mjs 腳本直接呼叫 fal 三個階段串起來，特別是用 Seedance 2.0 reference-to-video 與 GPT Image 2 edit 在 storyboard-system repo 裡跑批次生成的實際 pattern。
 image: attachments/claude-code-fal-pipeline-hero.png
 tags:
   - vibe-coding
@@ -10,213 +10,273 @@ tags:
 draft: false
 ---
 
-![Claude Code 操作 AI 圖片與影片生成的兩種模式](attachments/claude-code-fal-pipeline-hero.png)
+![用 Claude Code 直接呼叫 fal 生影片](attachments/claude-code-fal-pipeline-hero.png)
 
 > [!info] 本文由來
 > 這是一份由 **Claude Code** 整理的草稿，內容尚未經作者人工審稿，可能有不準確的地方。
 >
 > 整理依據，
 >
-> - 我與 Claude Code 工作的 session 紀錄（`~/.claude/projects/`）裡涉及 `fal-ai/...` endpoint 的部分
-> - 4 月內跨多個 codex sessions 對 image_gen 工具的使用紀錄
-> - [[storyboard-system|storyboard-system 開發紀錄]]、[[article-suite|article-suite 開發記]] 兩篇我之前寫過的工具文章
+> - storyboard-system repo `scripts/` 下的 `.mjs` 腳本（4-24 ~ 4-30 共 20+ 支）
+> - Claude Code 在該 repo 的 session 紀錄（`~/.claude/projects/-Users-jaschiang-GitHub-storyboard-system/`），最大那份 4-30 cbf79da7 fal_refs=100
+> - `~/.claude/projects/-Users-jaschiang-claude-----video-prompt-skill/` 的 prompt skill 使用紀錄
+> - `~/claude/測試區/video-scripts/` 的規劃 HTML 檔
 >
-> 本文不涉及任何特定商業案內容，只談工作流模式。文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
+> 文中提到的具體案子是某 3C 通路門市為兩個智慧家電品牌做的短影片素材，**品牌與通路名都已遮蓋**（以下用「品牌 A」「品牌 B」「某通路」代稱）。文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成。
 
 ## 起因
 
-過去半年陸續用 AI 生成圖片跟短影片。從一開始直接打 OpenAI image API、後來想試 ByteDance Seedance、想比較 Kling，到最後**幾乎所有 fal 上的圖片影片模型都跑過**，但**不是每個模型都是我「直接」在用**。
+近期接了一個短影片素材的工作，需要在大約一週內生出兩支不同 AI 風格的家電產品宣傳影片，給某通路跟兩個家電品牌（以下用「品牌 A」「品牌 B」代稱）的聯名門市用。
 
-整理 session 紀錄後，發現我的工作流明顯分成兩種模式，
+正常流程是找導演 / 攝影 / 模特、實拍、後製，**時間跟預算都不夠**。所以我把整套搬進 Claude Code 跟 fal.ai，讓 AI 從角色 ref 圖、場景 ref 圖、storyboard 分鏡、到最後的 reference-to-video 生成，一條龍跑完。
 
-1. **模式 A，工具內整合**：把 fal 模型包進我自己做的工具，工具內部處理 prompt、queue、retry、檔案管理。我用工具 = 用模型。
-2. **模式 B，臨時 batch**：不過工具，直接寫個 bash loop 用 codex / fal CLI 跑一次性 batch，例如某個專案的 hero 圖、某次靈感的影片試做。
+整個流程跨三個資料夾，**Claude Code 是貫穿全程的 driver**。我之前寫過 [[storyboard-system|storyboard-system 開發紀錄]] 這支工具本身的開發過程，但這篇是不同的故事 — 不是「用 storyboard-system 工具的 UI」，而是**在那個 repo 裡讓 Claude Code 直接寫腳本呼叫 fal**。
 
-這兩種模式在思考重點、值得投資的地方都不一樣，整理在這篇。
+## 全貌，三個階段
 
-## 模式 A，工具內整合（主力）
-
-最常用、最穩定的工作流，是把 fal 模型整合進我自己用 vibe coding 做的工具裡，
-
-- **[[storyboard-system|storyboard-system]]**：影片分鏡系統，內建多個 fal 影片 / 圖片 endpoint，包含 ByteDance Seedance（v1.0、v1.5、v2.0 各種變體）、Kling 系列、以及 Google 的 Nano Banana Pro 圖片模型。我寫過詳細開發紀錄，這篇不重複。
-- **[[article-suite|article-suite]]**：文章生產線，內部用 `fal-ai/flux/schnell` 生文章配圖跟縮圖。
-
-工具內用 fal 的好處，
-
-- **抽象掉 vendor 細節**：UI 上勾「用哪個模型」即可，不用每次手寫 endpoint 跟參數
-- **內建 retry / cost 統計 / 結果管理**：fal job 失敗、quota 不夠、檔名衝突等狀況工具自己處理
-- **跨 session 知識累積**：哪些 prompt 什麼模型穩定，存進工具的 templates，以後沿用
-
-從 session 紀錄看，**這類「工具內呼叫」佔我所有 fal 使用的 90% 以上**。模型實際被呼叫的次數最多在 storyboard-system 跟 article-suite 兩個專案的 session 裡。
-
-> [!note]
-> 這也代表我寫這篇文章時，對「Claude Code 直接幫我打 fal API」的經驗其實不深 — Claude Code 多半是在**幫我建工具的時候**寫那些呼叫程式，工具建好之後就是工具自己跑了。
-
-## 模式 B，臨時 batch（少但很實用）
-
-另一種模式是「我有一個明確要產的素材集，但沒值得專門做工具」，例如，
-
-- 給某篇文章生 hero 圖
-- 給某個簡報生 5 張概念圖
-- 試一個影片 idea 看效果
-
-這類我多半用 **Codex CLI 的 image_gen 工具**（背後是 OpenAI gpt-image-2，不走 fal），原因是 Codex CLI 已經安裝、可以從 bash 一行呼叫、適合用 Claude Code 寫 batch script orchestrate。
-
-最近一個典型例子是這個 blog 的 20 篇 hero 圖批次重生。寫一個 bash loop，裡面 `codex exec` 跑每一篇，
-
-```bash
-for slug in "${SLUGS[@]}"; do
-  ARTICLE=$(cat content/${slug}.md)
-  MARKER=$(mktemp); sleep 1
-
-  codex exec --full-auto --skip-git-repo-check "$PROMPT_WITH_ARTICLE" > log
-  
-  # session-id 隔離（重要）
-  SESSION_FILE=$(find ~/.codex/sessions -name 'rollout-*.jsonl' \
-    -newer "$MARKER" -print0 | xargs -0 ls -t | head -1)
-  SESSION_ID=$(basename "$SESSION_FILE" .jsonl | sed 's/^rollout-[0-9T-]*-//')
-  IMG=$(find ~/.codex/generated_images/$SESSION_ID/ -name 'ig_*.png' | head -1)
-  
-  cp "$IMG" attachments/${slug}-hero.png
-done
 ```
+階段 1，規劃                階段 2，prompt 草擬          階段 3，腳本生成
+─────────                  ──────────                  ──────────
+~/claude/測試區/           ~/claude/.../               ~/GitHub/
+  video-scripts/             video-prompt-skill/         storyboard-system/
+                                                           scripts/
+
+3C 通路 30 秒企劃          gpt-image-2-prompt-skill    gen-brand-a-15s-parta-home.mjs
+品牌 A 60 秒 7 段          seedance2.0-prompt-skill    gen-brand-a-fridge-open-ref.mjs
+...                                                      gen-brand-a-bridge-morph.mjs
+                                                         gen-brand-a-storyboard-sheet*.mjs
+                                                         (20+ 支腳本)
+
+純規劃、HTML 檔             用 skill 寫中文 prompt       Claude Code 寫 mjs，
+                                                       node 直接 run，
+                                                       走 @fal-ai/client，
+                                                       呼叫 Seedance 2.0 +
+                                                       GPT Image 2 + Nano Banana
+```
+
+每個階段都有 Claude Code，但角色不同。
+
+## 階段 1，規劃，純文字 storyboard
+
+這階段 Claude Code 沒呼叫任何 AI 模型，**只在做文字結構化工作**。
+
+我給它幾個 input，
+
+- 客戶要的訊息要點（產品功能、目標族群、調性）
+- 影片時長（30s / 60s）
+- 必須出現的視覺元素（門市實景、產品擺位、主視覺色調）
+
+它輸出一份 HTML 規劃檔，結構大致是，
+
+```
+影片 A — 30 秒，7 段
+  CUT 1 (0.0 → 1.5s) 開場 — 主角推門進入門市
+  CUT 2 (1.5 → 3.5s) 店員引導到產品區
+  CUT 3 (3.5 → 6.5s) 產品 hero shot 1
+  CUT 4 (6.5 → 11s)  使用情境演示
+  ...
+```
+
+每個 cut 包含時長、畫面描述、運鏡、主視覺、音效暗示。**這份 HTML 是後續所有階段的 spec**，不對它就一錯到底。
 
 關鍵設計，
 
-- **每篇文章一個 codex session** → session-id 自然隔離
-- 用 `marker` 檔配 `find -newer` 找本次的 session jsonl，再從檔名 parse session-id
-- 只在那個 session 對應的 generated_images 子資料夾找圖
+- 切 cut 時就先把時長加總到 30s / 60s（不要在最後階段才發現超時）
+- 每個 cut 都註明「**人物角度**」（正面 / 側面 / 背影），因為這直接影響後面 ref 圖怎麼生
+- 每個 cut 都註明「**有無對話 / 旁白**」，影響是否需要嘴型對得上的 reference
 
-最後一條很重要。我第一版 script 沒做 session-id 隔離，**抓圖時用了「找最新生成的圖」這個邏輯**，結果跑到一半，剛好我另一個 codex session 在做別的事情、生了一張無關的圖，被 batch script 抓回來當 hero。圖跟文章完全對不上，發現後才補 session 隔離邏輯。
+這階段 Claude Code 表現很穩，**比我自己寫得結構化**。
 
-## 中文渲染的坑
+## 階段 2，用 skill 草擬中文 prompt
 
-兩種模式都會遇到同一個問題，**模型預設生簡體中文**，即使 prompt 寫繁中描述。
+到這階段才開始進入「跟 AI 模型講話」。但**還沒呼叫模型**，是寫好 prompt 待用。
+
+我有兩支自己安裝的 Claude Code skill，
+
+- **`gpt-image-2-prompt-skill`** — 寫給 OpenAI GPT Image 2 的圖片生成 / 編輯 prompt
+- **`seedance2.0-prompt-skill`** — 寫給 ByteDance Seedance 2.0 的中文影片 prompt
+
+skill 的本質是**結構化 prompt 範本**。給它「我要拍什麼」，它套用模型最佳的 prompt schema，輸出一份可以直接餵給模型的中文（或中英混合）prompt。
+
+例如 Seedance skill 教你，
+
+- ≤15 秒：不講故事，做一個「不可能的瞬間」，前 2 秒抓人
+- \>15 秒：分段，每段獨立 prompt，後製拼接
+- 多模態 reference 是 Seedance 2.0 強項，盡量利用
+- 中英混合比純中文穩定（運鏡術語用英文 wide / dolly / pan，主體與情境用中文）
+- @ 引用必須用官方命名 `@图片1` ~ `@图片9`、`@视频1` ~ `@视频3`
+
+skill 把這些「平台特性」內建，我寫 prompt 時不用每次回去翻 fal 文件。
 
 > [!note]
-> 為什麼會這樣？我沒查到 OpenAI 或其他 vendor 的官方說明。**最合理的猜測是訓練資料中文部分以簡中為主**（中國網際網路內容遠多於台灣 + 香港），模型對「中文」的內部表徵自然偏簡中。
->
-> 但這只是猜測，沒有官方文件支持。實務上不需要知道 root cause，**接受 default 是簡中、在 prompt 強制反轉**就行。
+> Skill 內建的範例是簡體中文（即夢平台原生語言），但實際輸出 prompt 我會請 Claude Code 改成繁中（除了 `@图片1` 這類官方命名格式不能改）。Claude Code 一次設定好後續所有 prompt 都會跟著用繁中描述。
 
-實測，
+## 階段 3，寫 .mjs 腳本，Claude Code 直接呼叫 fal
 
-- **gpt-image-2**（透過 Codex CLI 或 fal 端點）：預設簡體
-- **Nano Banana Pro**：中等，有時繁有時簡
-- **Seedance**：對中文 prompt 友善，但要混一點英文穩定度更好
-- **Kling**：對中文 prompt 不穩定，建議用英文或中英雙語
+**這階段是這次工作流最有 vibe coding 感的部分**。
 
-要逼模型穩定輸出繁中，prompt 必須**強烈、重複**強調，並加殘體對照表，
+storyboard-system repo 之前是我做來「串接各家 AI 影片 / 圖片模型的整合工具」（[[storyboard-system|工具本身的開發紀錄]]）。這次要做素材時，我**沒打開那個工具的 UI**，而是直接打開 Claude Code 在 storyboard-system repo cwd，請它**寫 .mjs 腳本**呼叫 fal。
+
+理由：UI 適合「一張一張生、視覺驗證」；腳本適合「一次跑 4-6 個 cut + 多個變體 + 失敗重試」這種批次。
+
+腳本長什麼樣，
+
+```js
+#!/usr/bin/env node
+// gen-XX-15s-parta-home.mjs
+// Seedance 2.0 reference-to-video — 15-second part A
+
+import { fal } from '@fal-ai/client'
+import fs from 'node:fs/promises'
+
+const SEEDANCE_REF = 'bytedance/seedance-2.0/reference-to-video'
+const OUT_DIR = '.data/test-output'
+
+const REFS = {
+  protagonist:  '.data/.../front-female-protagonist-casual-v1.png',
+  home:         '.data/.../home-interior-v1.png',
+  appliance:    '.data/.../appliance-hero-ref.png',
+  // @图片1 ~ @图片N
+}
+
+const PROMPT = `[15 秒一鏡到底，多 cut whip-pan 接駁]
+0.0-1.8s   foyer，主角推開門進入...（中英混合 prompt）
+1.8-2.1s   whip-pan 1
+2.1-3.6s   walk-in 到客廳沙發
+...
+`
+
+const result = await fal.subscribe(SEEDANCE_REF, {
+  input: {
+    prompt: PROMPT,
+    reference_image_urls: Object.values(REFS),
+    duration: 15,
+    resolution: '1080p',
+    seed: 42,
+  },
+  logs: true,
+})
+
+await fs.writeFile(
+  `${OUT_DIR}/output.mp4`,
+  Buffer.from(await fetch(result.data.video.url).then(r => r.arrayBuffer()))
+)
+```
+
+用法是，
+
+```bash
+node scripts/gen-XX-15s-parta-home.mjs
+```
+
+跑下去 1-3 分鐘等 fal queue 完成，輸出落到 `.data/test-output/`。
+
+## 為什麼用腳本不用 UI
+
+| 情境 | 腳本 | UI |
+|------|------|-----|
+| 一次跑 4-6 個 cut | ✅ 一個 for loop 就好 | ❌ 一張一張點 |
+| 同 prompt 不同 seed 跑變體 | ✅ for 迴圈 + seed 陣列 | ❌ 改 seed 重點 |
+| 失敗自動重試 | ✅ try / catch + retry | ⚠️ 手動重點 |
+| 批次同樣 ref 換 prompt | ✅ 改腳本一行 | ⚠️ UI 重輸入 |
+| 第一次 explore 視覺方向 | ❌ 寫腳本太重 | ✅ UI 適合試 |
+| 需要視覺即時驗證 | ⚠️ 跑完才看 | ✅ 立刻看 |
+
+我自己的決策規則：**前 1-2 張用 UI 探方向**（用 storyboard-system tool 或 fal web）、**確定方向後寫腳本批次跑**。
+
+## 一週生出來的腳本長相
+
+實際 4-24 ~ 4-30 之間在 storyboard-system/scripts/ 累積的腳本（部分），
 
 ```
-中文必須是台灣繁體 zh-TW，嚴禁簡體與殘體（用繁體字寫中國用詞）：
-- 鏈結 / 链接 → 連結 或 網址
-- 視頻 / 视频 → 影片
-- 軟件 / 软件 → 軟體
-- 網絡 / 网络 → 網路
-- 數據 / 数据 → 資料
-- 服務器 / 服务器 → 伺服器
-- 文檔 / 文档 → 文件 或 檔案
-- 信息 / 信息 → 訊息 或 資訊
-- 屏幕 / 屏幕 → 螢幕
-- 用戶 / 用户 → 使用者
-- 搜索 / 搜索 → 搜尋
-- 代碼 / 代码 → 程式碼
-- 內存 / 内存 → 記憶體
+gen-brand-a-fridge-open-ref.mjs           — 冰箱開門 reference 圖（gpt-image-2/edit）
+gen-brand-a-cut3-seated.mjs               — 第 3 段坐姿 ref（gpt-image-2/edit）
+gen-brand-a-home-interior-no-styler.mjs   — 居家內景 ref，去掉風格器（gpt-image-2/edit）
+gen-brand-a-15s-parta-home.mjs            — Part A 15 秒主影片（Seedance 2.0 ref-to-video）
+gen-brand-a-15s-from-storyboard.mjs       — 從 storyboard 直接吐 15 秒影片
+gen-brand-a-storyboard-sheet*.mjs         — 整張 storyboard sheet 視覺化（多版本）
+gen-brand-a-bridge-morph.mjs              — Part A → B 過場 morph
+gen-brand-a-merged-bridge-partb.mjs       — Part B 接 Part A 後段
+gen-brand-a-4s-partb-store.mjs            — Part B 4 秒門市段
+gen-brand-a-4clips.mjs                    — 4 個獨立 clips 批次跑
+run-mascot-endcard-seedance.mjs      — 結尾吉祥物 endcard
+pad-hem-strip-ref.mjs                — 服裝飾條 padding（為了過 fal 3:1 比例上限）
+fal-fetch-request.mjs                — 拉 fal job result 的 helper
+gen-brand-a-character-refs.mjs            — 男店員 / 女主角 character library
+gen-brand-a-variants.mjs                  — 角色 3 種服裝變體（外出 / 居家 / 休閒）
+（共 20+ 支）
 ```
 
-加了之後成功率明顯提升。但**還是會偶爾漏網**。例如「短鏈結」（殘體寫法），台灣應該用「短網址」（在地用詞）。對策是再加一條，
+數字統計，
 
-> 圖中所有中文字必須完全沿用文章原文用詞，禁止自創、翻譯、改寫、簡化
-
-逼模型從 input 抄字而不是自創翻譯，這樣只要文章原文用對的詞，生圖就會跟著對。
-
-對殘體警覺度要拉高。「鏈結」「視頻」這種**字本身是繁體、但詞是中國用詞**的最容易漏網，需要肉眼最後檢查一遍。
-
-## 影片生成的特殊處理（適用兩種模式）
-
-不管走 storyboard-system 還是 ad-hoc，影片生成跟圖片差兩點，
-
-### 1. 時長限制
-
-fal 上常見影片模型的單次生成上限，
-
-| 模型 | 單次最長 |
+| 模型 | 呼叫次數（跨所有 .mjs） |
 |------|---------|
-| Seedance v1.0 / v1.5 Pro | 5s 或 10s |
-| Seedance 2.0 Pro | ~10s |
-| Kling 2.x | 5s 或 10s |
+| `openai/gpt-image-2/edit`（圖片編輯） | 39 |
+| `fal-ai/nano-banana-pro/edit`（圖片編輯備選） | 8 |
+| `bytedance/seedance-2.0/reference-to-video`（影片） | 跨 9 支腳本，實際 fal subscribe 呼叫 ~20 次 |
 
-要 15 秒以上，**單一模型一次跑不出來**。常見解法，
+**最常用的不是影片模型本身，而是 GPT Image 2 edit**。原因是影片需要大量先準備好的 reference 圖（角色 ref 各角度、場景 ref 各角度、商品 ref 等），ref 圖品質決定影片品質，**前期 ref 製作的呼叫量遠多於最終 video 呼叫**。
 
-- 拆成兩個 5-10 秒片段
-- 後一段用前一段的最後一幀當 image-to-video 起點，維持視覺連貫
-- 後製拼接
+## 踩過的坑
 
-### 2. Long-running job
+### 1. fal 對單張 ref 圖的比例上限是 3:1
 
-圖片大多 5-30 秒同步回應。影片動輒 1-3 分鐘 async。fal 走 queue 模式，
+某次我傳一張長條形的服飾飾條 ref（1504×432，比例 3.48:1）給 gpt-image-2/edit，fal 直接回 422 拒收。寫了 `pad-hem-strip-ref.mjs` 把圖旋轉並 padding 到 3:1 內，再餵進去就過。
 
-```
-1. POST 提交 job → 拿到 request_id
-2. GET status 直到 completed
-3. GET 結果，拿到視頻 URL
-```
+### 2. Reference 太多會被合併壓縮
 
-實務上**啟動後就丟著**，不在 polling loop 裡死等。Claude Code 可以跑 background task，「跑這個影片生成 job、別等它、做完了再 ping 我」，比死等回應更實際。
+Seedance 一次最多 9 張 reference，我塞太多，模型會自動合併概念，反而導致**特定細節（例如 logo 顏色）失真**。後來改成「每張 ref 對應一個明確視覺角色」（@图片1=主角、@图片2=場景、@图片3=道具），不混。
 
-## Prompt 迭代是這套工作流的本質
+### 3. Whip-pan 接駁比 cross-fade 穩
 
-最深的體會是，**第一次寫的 prompt 從來不是最終版**。
+15 秒的多 cut 影片，我原本想用 cross-fade 接駁不同場景，結果模型生出來「家具會在淡入淡出時融化」（layout 不連續引起的 artifact）。改成快速 whip-pan（0.3 秒鏡頭甩動 + motion blur）後，**所有場景接駁都自然很多**。
 
-我的 prompt 演化通常經歷，
+### 4. 角色一致性靠 ref 鎖，不靠 prompt 描述
 
-1. **第一版**：照模型文件範例寫，產出能跑但很 generic
-2. **第二版**：加風格指引（畫風、媒材、調性）
-3. **第三版**：加禁止項（不要這、不要那）
-4. **第四版**：加殘體對照表、強制原文用詞
-5. **第五版**：發現實際輸出的某個失敗模式，加對應修補規則
+我一開始把主角的長相細節寫進 prompt（「米色粗針織毛衣 + 暖灰長褲、25 歲、長髮微捲」），不同 cut 跑出來的人臉還是會飄。後來改成**先用 gpt-image-2/edit 生一張「主角 canonical reference」圖**，每個 cut 都把這張當 `@图片1` 餵進去，prompt 只描述「主角做什麼」，**角色一致性顯著提升**。
 
-每一版都是踩到坑後才補的，**第一次很難一次想到全部該禁止的事**。接受這個 iteration 節奏比較實際。
+### 5. fal API key 環境變數
 
-把 iteration 過程留在 commit history，**未來換 vendor 或 model 時可以回頭參考**，這也是把 prompt 包進工具（模式 A）的好處之一。
-
-## 什麼時候該做工具，什麼時候 ad-hoc
-
-兩種模式各有適用場景，
-
-| 條件 | 模式 A，做工具 | 模式 B，ad-hoc batch |
-|------|----------------|---------------------|
-| 重複次數 | 會跑很多次（>10 次/月） | 一次性或短期 |
-| 需要 UI / 給別人用 | 是 | 否 |
-| 需要參數試錯 | 是，工具方便切換 | 也行，但 bash 更快試 |
-| 需要結果管理 / 比較 | 是 | 一般可以放著 |
-| 投資成本 | 高（建 UI、後端、整合） | 低（一個 bash script） |
-
-我的判斷規則大概是，**「下個月還會用嗎？」如果是，做工具；如果不是，bash 一個 loop 跑完就忘**。
+`@fal-ai/client` 預設讀 `FAL_KEY` 環境變數。我把 key 放在 repo 根的 `.env.local`，腳本最前面 `dotenv` 載入。`.env.local` 在 `.gitignore`，但要小心**腳本裡不要寫死 key**。
 
 ## 心得
 
-### Claude Code 在這套工作流的角色
+### Claude Code 在這套工作流的實際角色
 
-不只是「按下生成按鈕那一下」。它在做，
+它不是「按下生成按鈕那一下」。它在做，
 
-- **決定要 ad-hoc 還是建工具**（看任務性質）
-- **設計 orchestrator 的結構**（session 隔離、batch loop、錯誤處理）
-- **看到失敗結果決定要不要重試 / 換模型 / 換 prompt**
-- **跨 session 累積教訓**（殘體對照表、session 隔離 pattern 等都是踩過坑後加進來的）
+- **規劃階段**：把粗糙的客戶 brief 結構化成可執行的 cut 表
+- **prompt 階段**：根據 skill 套出最適合該模型的 prompt schema
+- **腳本階段**：根據 cut 表寫 .mjs，串好 ref 圖、prompt、模型參數
+- **跨階段一致性**：同一個角色在多個 cut 裡用的 ref 是同一張，由它記住對應關係
+- **看到失敗結果決定要重試 / 換 prompt / 換模型**
 
-這比單純的「自動化腳本」動態，又比「人類盯著每一張圖」省力。
+最後一條最重要。**生成失敗時不只是「重跑」**，而是要分析「為什麼失敗（ratio 過大？ref 衝突？prompt 描述歧義？）」再對症下藥。Claude Code 在這個診斷迴圈很有幫助。
 
-### 別過度依賴 fal 的「一個 API 走天下」
+### 為什麼不直接寫一個整合工具就好
 
-fal.ai 的方便性確實大，但**它代理的模型可能 deprecate 或漲價**。我設計工具的時候，把每個 model 的呼叫包成一個 adapter（接同樣的 input / output），即使哪天某 model 從 fal 下架，把 adapter 換成直接打 vendor 即可。**1-2 天可遷移，風險可控**。
+我手上已經有 storyboard-system 這套整合工具。但這次案子直接寫腳本反而更快，因為，
 
-### 對中文圈使用者的建議
+- **每個案子的視覺需求都不一樣**：通用 UI 反而限制變化
+- **腳本可以版本控制**：寫得好的腳本可以 fork 改參數重用
+- **批次跑容易**：UI 一次跑一張、腳本可以 4-8 個 parallel
 
-如果你跟我一樣**內容多半是繁中**，這套工作流的 prompt 部分**一定要花時間設計繁中 / 殘體規則**。default 出來的東西大機率會有簡中或殘體，後製檢查很煩。把規則 baked in 到 prompt template / 工具 config 裡是最划算的做法。
+換句話說，**通用工具負責「常見情境」，腳本負責「特殊案子」**。這兩個不是替代關係，而是互補。
+
+### 中文 prompt 的微妙點
+
+跨 3 個模型（GPT Image 2、Nano Banana Pro、Seedance 2.0），中文渲染穩定度差別很大，
+
+- **GPT Image 2 / edit**：中文字渲染預設偏簡體，要強制繁體得在 prompt 加殘體對照表 + 強制原文用詞
+- **Nano Banana Pro**：對中文敏感度中等，繁簡都會出
+- **Seedance 2.0**：對中文 prompt 友善，純中文也跑得穩。但實務上**混一點英文反而更穩**（運鏡術語用英文，主體用中文）
+
+如果哪天有人問我「用 fal 做中文家電影片該選哪個」，我大概會說：**ref 圖用 GPT Image 2，影片用 Seedance 2.0**，原因是這兩個模型**理解中文敘事的角度最對盤**，輸出最少需要改 prompt 重跑。
 
 ## 結語
 
-整理這篇的感覺是，「**Claude Code 在我 AI 圖片影片工作流的角色**」其實比想像中更後設。它不是負責每次 generation，**它負責決定怎麼組織 generation 這件事本身**——要不要做工具、prompt 怎麼演化、結果怎麼比較、失敗怎麼處理。
+這次工作流跑完最大感受是，**Claude Code 把「能不能做」跟「做得快不快」這兩件事的瓶頸都搬到不同位置**。
 
-具體模型呼叫反而是相對機械的環節，誰都可以做。難的、也是 vibe coding 真正改變的，是**在 generation 之上那一層的 orchestration 思考**。
+以前自己拍要找團隊；後來用 AI 影片但要熟工具 UI；現在用腳本批次跑，瓶頸變成**寫 prompt 的清晰度**跟**規劃 cut 表的合理性**。**生成本身**反而是最確定、最可重複的環節。
+
+對行銷或內容工作者來說，這套組合（fal + Claude Code + 一些 .mjs 腳本）應該還會繼續是接下來幾個月的主力工作流。
