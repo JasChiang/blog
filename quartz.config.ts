@@ -12,9 +12,7 @@ const config: QuartzConfig = {
     pageTitleSuffix: "",
     enableSPA: true,
     enablePopovers: true,
-    analytics: {
-      provider: "plausible",
-    },
+    analytics: null,
     locale: "zh-TW",
     baseUrl: "jasboughtit.com/blog",
     ignorePatterns: ["private", "templates", ".obsidian"],
