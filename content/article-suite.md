@@ -101,7 +101,7 @@ Proxy fetch 實作把 HTML 裡所有標籤都用 regex 替換成空格，圖片 
 
 這個專案用的是公司內容平台現有的 CKEditor，不可能改編輯器設定。所以解法反過來，讓卡片 HTML 本身符合「CKEditor 4 會穩定保留的結構」，主要是兩條規則，閱讀更多卡不能用整張卡片外包一個 `<a>`，商品卡圖片不能放在 `<a>` 裡面，這兩種寫法是 CKEditor 4 最容易改寫的模式。改完之後移除功能完全不受影響，因為移除靠的是 HTML 註解標記，跟外層結構無關。
 
-順帶一提，這套發布到 CMS 的邏輯（`services/server/senaoHttpClient.js` 等檔案）是 article-suite 自己實作的，跟我另外做的獨立工具 [[cms-publisher|cms-publisher]] 是兩套**並行的不同實作**，不是同一套程式碼共用。article-suite 把 CMS 發布綁在工作台後端，方便商品卡 / schema / 縮圖等流程一起跑；cms-publisher 則是抽離出來的獨立 HTTP 服務，目的是讓任何外部工具（包括其他 LLM 工作流）都能直接呼叫 `POST /api/publish` 觸發發文，兩個工具在不同情境下各自有用武之地。
+順帶一提，這套發布到 CMS 的邏輯（`services/server/cmsHttpClient.js` 等檔案）是 article-suite 自己實作的，跟我另外做的獨立工具 [[cms-publisher|cms-publisher]] 是兩套**並行的不同實作**，不是同一套程式碼共用。article-suite 把 CMS 發布綁在工作台後端，方便商品卡 / schema / 縮圖等流程一起跑；cms-publisher 則是抽離出來的獨立 HTTP 服務，目的是讓任何外部工具（包括其他 LLM 工作流）都能直接呼叫 `POST /api/publish` 觸發發文，兩個工具在不同情境下各自有用武之地。
 
 ## 心得
 

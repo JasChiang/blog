@@ -67,15 +67,15 @@ Playwright 版保留下來是有意為之的決策。研究 API 結構的過程�
 
 另一個踩到的坑是架構問題。開發機是 Apple Silicon，Playwright 在某個狀態下預期找 x64 的 headless Chromium，而機器上只有 arm64 的快取，導致瀏覽器一直啟動失敗。
 
-這個問題在「單獨跑專案」時從來沒出現，卻在我改成用 Codex Skill 觸發時才冒出來，因為執行環境稍微不同（Skill 的執行路徑不同，Playwright 重新解析 Chromium 位置）。修法是在 `auth.js` 裡加一個 `SENAO_CHROMIUM_EXECUTABLE_PATH` 環境變數，強制指定 arm64 的執行路徑，讓 Playwright 不要自己猜。
+這個問題在「單獨跑專案」時從來沒出現，卻在我改成用 Codex Skill 觸發時才冒出來，因為執行環境稍微不同（Skill 的執行路徑不同，Playwright 重新解析 Chromium 位置）。修法是在 `auth.js` 裡加一個 `CMS_CHROMIUM_EXECUTABLE_PATH` 環境變數，強制指定 arm64 的執行路徑，讓 Playwright 不要自己猜。
 
 這類「換了一層呼叫方式就壞」的問題，如果沒有 Claude Code 幫忙在 log 裡找線索，自己排查可能要花很久。
 
 ### 把工具包成 Skill，讓 AI 可以直接觸發
 
-工具能跑之後，我做了一件事，把整個發布流程包成一個 Codex Skill（放在 `/Users/jaschiang/Documents/GitHub/my-claude-skills/senao-one-click-publish/`，再用軟連結接到 `~/.codex/skills/`）。這樣我在 Codex CLI 裡說「幫我發這篇文章」，它就會呼叫 skill，skill 負責接收文章內容、把 Markdown 轉成 HTML、處理縮圖、呼叫發布工具，整個流程不用我再手動介入。
+工具能跑之後，我做了一件事，把整個發布流程包成一個 Codex Skill（放在我自己的 skills 資料夾下，再用軟連結接到 `~/.codex/skills/`）。這樣我在 Codex CLI 裡說「幫我發這篇文章」，它就會呼叫 skill，skill 負責接收文章內容、把 Markdown 轉成 HTML、處理縮圖、呼叫發布工具，整個流程不用我再手動介入。
 
-包成 Skill 時有一個設計選擇，就是 skill 本身不包含發布工具的程式碼，只負責呼叫。工具的路徑用環境變數 `SENAO_PROJECT_ROOT` 指定（放在 skill 資料夾下的 `.env`），這樣做的好處是，兩個部分可以獨立更新，如果工具邏輯改了，skill 不需要跟著動；而且對外開源的話，別人只要照說明設好環境變數，就能接上自己的環境。
+包成 Skill 時有一個設計選擇，就是 skill 本身不包含發布工具的程式碼，只負責呼叫。工具的路徑用環境變數 `CMS_PROJECT_ROOT` 指定（放在 skill 資料夾下的 `.env`），這樣做的好處是，兩個部分可以獨立更新，如果工具邏輯改了，skill 不需要跟著動；而且對外開源的話，別人只要照說明設好環境變數，就能接上自己的環境。
 
 Skill 的 `publish.js` 腳本負責，接收 JSON payload，判斷輸入是 Markdown 還是 HTML（自動偵測或由 `contentFormat` 欄位指定），處理縮圖尺寸（690x690 自動裁切），再組成請求打到本地的 `/api/publish` 端點。
 
@@ -87,9 +87,9 @@ Skill 的 `publish.js` 腳本負責，接收 JSON payload，判斷輸入是 Mark
 
 ### 兩個環境變數容易搞混
 
-有一個細節值得記下，這個工具有兩套環境變數，主專案的 `.env`（放帳號密碼和 base URL），以及 Skill 資料夾的 `.env`（放 `SENAO_PROJECT_ROOT` 指向主專案路徑）。兩個 `.env` 都要設好，任何一個漏掉都會導致發文失敗，且錯誤訊息不一定直觀。
+有一個細節值得記下，這個工具有兩套環境變數，主專案的 `.env`（放帳號密碼和 base URL），以及 Skill 資料夾的 `.env`（放 `CMS_PROJECT_ROOT` 指向主專案路徑）。兩個 `.env` 都要設好，任何一個漏掉都會導致發文失敗，且錯誤訊息不一定直觀。
 
-實際上 `index-http.js` 啟動時會先做環境變數驗證，如果 `SENAO_USERNAME`、`SENAO_PASSWORD`、`SENAO_BASE_URL` 三個其中有缺，會直接 exit 並印出清楚的錯誤，不會讓你跑到一半才爆。這個 fail-fast 設計有幫我省掉幾次排查時間。
+實際上 `index-http.js` 啟動時會先做環境變數驗證，如果 `CMS_USERNAME`、`CMS_PASSWORD`、`CMS_BASE_URL` 三個其中有缺，會直接 exit 並印出清楚的錯誤，不會讓你跑到一半才爆。這個 fail-fast 設計有幫我省掉幾次排查時間。
 
 ## 結語
 
