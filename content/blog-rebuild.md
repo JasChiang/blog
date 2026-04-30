@@ -34,7 +34,7 @@ draft: false
 1. 從 Cloudways VPS 搬到 GitHub Pages（免費 + 靜態 + 免維護）
 2. 把網域 `jasboughtit.com` 從 Gandi 接到 GitHub
 3. 整個視覺重做一次（不要繼續用 Quartz 預設）
-4. 順便處理 GitHub Pages root 那個 `jaschiang.github.io` repo 裡的舊內容（有些是公司案不能曝）
+4. 順便處理 GitHub Pages root 那個 `jaschiang.github.io` repo 裡的舊內容（有些是公司案的東西，不想公開放在那）
 
 預期半天搞定。實際是一個下午加晚上。
 
@@ -125,7 +125,7 @@ echo '{"https_enforced":true}' | \
 
 ## 處理舊 repo 的私有內容
 
-這段是踩到的坑。`jaschiang.github.io` repo 之前是 private，裡面除了我自己想公開的 `ai/`、`marketing/`、`old-version/` 等，還有 `senao-marketing/`、`organization/` 這類**公司案內容**，按去識別化規則不能曝。
+這段是踩到的坑。`jaschiang.github.io` repo 之前是 private，裡面除了我自己想公開的 `ai/`、`marketing/`、`old-version/` 等，還有幾個**公司案的資料夾**，那些不想跟著公開。
 
 但 GitHub Pages 在免費方案下，**只有 public repo 才能啟用**。所以 repo 必須變 public。
 
@@ -150,7 +150,7 @@ echo '{"https_enforced":true}' | \
 
 ## 視覺重設計
 
-這是最折騰的部分，我换了三次方向。
+這是最折騰的部分，我換了三次方向。
 
 ### 嘗試 1，灰藍預設（Quartz default）
 
@@ -185,13 +185,13 @@ Hero 圖風格決定了整個 blog 的氣質。我請 Codex 比較了四個方�
 
 > 嚴禁任何形式的文字、字母、數字。整張圖必須完全無任何字符。
 
-問題，整個圖變成只有抽象視覺，沒文字標籤，跟文章內容無法呼應。
+結果整個圖變成只有抽象視覺，沒文字標籤，跟文章內容對不上。
 
 **第二版**（太自由）：
 
 > 你是 art director，自選風格。可選方向：寫實插畫 / picture-book / editorial / isometric / risograph...
 
-問題，自由過頭。`ai-video-writer` 那篇的 hero 直接畫成**棒球比賽**（TPE 5-3 KOR）。文章是講 YouTube 內容自動化工具，被視覺往「video」→「sports」聯想拐走。
+結果反而太自由。`ai-video-writer` 那篇的 hero 直接畫成**棒球比賽**（TPE 5-3 KOR）。文章是講 YouTube 內容自動化工具，被視覺往「video」→「sports」聯想拐走。
 
 **第三版**（最終）：
 
@@ -226,7 +226,7 @@ Hero 圖風格決定了整個 blog 的氣質。我請 Codex 比較了四個方�
 
 批次跑 codex exec 的時候，第一版 script 用 `find ~/.codex/generated_images/ -newer marker` 抓圖。問題是，**這會抓到任何 codex session 在那段時間生的圖**。
 
-實測情境，跑到 `ai-video-writer` 那張時，平行有另一個 codex session 在做別的商業案生圖，我這邊把對方那張 Panasonic 家電廣告圖抓回來當 hero。
+實際跑到 `ai-video-writer` 那張時，剛好另一個 codex session 也在生圖，結果我這邊抓回來的是對方那張完全不相關的 Panasonic 家電圖，被當成 hero 蓋上去。
 
 修法是改用 session-id 隔離，
 
