@@ -150,7 +150,7 @@ export const CustomOgImages: QuartzEmitterPlugin<Partial<SocialImageOptions>> = 
             if (userDefinedOgImagePath) {
               userDefinedOgImagePath = isAbsoluteURL(userDefinedOgImagePath)
                 ? userDefinedOgImagePath
-                : `https://${baseUrl}/static/${userDefinedOgImagePath}`
+                : `https://${baseUrl}/${userDefinedOgImagePath}`
             }
 
             const generatedOgImagePath = isRealFile
