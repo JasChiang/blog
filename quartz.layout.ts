@@ -4,7 +4,16 @@ import * as Component from "./quartz/components"
 // components shared across all pages
 export const sharedPageComponents: SharedLayout = {
   head: Component.Head(),
-  header: [],
+  header: [
+    Component.PageTitle(),
+    Component.Flex({
+      components: [
+        { Component: Component.Search(), grow: true },
+        { Component: Component.Darkmode() },
+        { Component: Component.ReaderMode() },
+      ],
+    }),
+  ],
   afterBody: [],
   footer: Component.Footer({
     links: {
@@ -46,31 +55,7 @@ export const defaultContentPageLayout: PageLayout = {
       condition: (page) => page.fileData.slug === "index",
     }),
   ],
-  left: [
-    Component.PageTitle(),
-    Component.MobileOnly(Component.Spacer()),
-    Component.Flex({
-      components: [
-        {
-          Component: Component.Search(),
-          grow: true,
-        },
-        { Component: Component.Darkmode() },
-        { Component: Component.ReaderMode() },
-      ],
-    }),
-    Component.Explorer({
-      title: "全部文章",
-      sortFn: (a, b) => {
-        if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
-        const aDate = a.data?.dates?.published?.getTime?.() ?? a.data?.dates?.created?.getTime?.() ?? 0
-        const bDate = b.data?.dates?.published?.getTime?.() ?? b.data?.dates?.created?.getTime?.() ?? 0
-        if (aDate && bDate && aDate !== bDate) return bDate - aDate
-        return a.displayName.localeCompare(b.displayName)
-      },
-    }),
-    Component.DesktopOnly(Component.TableOfContents()),
-  ],
+  left: [Component.DesktopOnly(Component.TableOfContents())],
   right: [
     // Component.Graph(),  // 知識圖譜：暫時隱藏，需要時把這行的註解 // 拿掉
     Component.Backlinks(),
@@ -80,28 +65,6 @@ export const defaultContentPageLayout: PageLayout = {
 // components for pages that display lists of pages  (e.g. tags or folders)
 export const defaultListPageLayout: PageLayout = {
   beforeBody: [Component.Breadcrumbs(), Component.ArticleTitle(), Component.ContentMeta()],
-  left: [
-    Component.PageTitle(),
-    Component.MobileOnly(Component.Spacer()),
-    Component.Flex({
-      components: [
-        {
-          Component: Component.Search(),
-          grow: true,
-        },
-        { Component: Component.Darkmode() },
-      ],
-    }),
-    Component.Explorer({
-      title: "全部文章",
-      sortFn: (a, b) => {
-        if (a.isFolder !== b.isFolder) return a.isFolder ? -1 : 1
-        const aDate = a.data?.dates?.published?.getTime?.() ?? a.data?.dates?.created?.getTime?.() ?? 0
-        const bDate = b.data?.dates?.published?.getTime?.() ?? b.data?.dates?.created?.getTime?.() ?? 0
-        if (aDate && bDate && aDate !== bDate) return bDate - aDate
-        return a.displayName.localeCompare(b.displayName)
-      },
-    }),
-  ],
+  left: [],
   right: [],
 }
