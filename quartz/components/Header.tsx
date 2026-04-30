@@ -24,9 +24,17 @@ Header.css = `
 }
 
 .page > #quartz-body > .center > .page-header > header > .page-title {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   margin: 0;
   flex: 0 0 auto;
+  letter-spacing: -0.01em;
+}
+
+.page > #quartz-body > .center > .page-header > header > .page-title::before {
+  content: "$ ";
+  color: var(--secondary);
+  font-weight: 400;
+  margin-right: 0.1em;
 }
 
 .page > #quartz-body > .center > .page-header > header > .page-title a {
