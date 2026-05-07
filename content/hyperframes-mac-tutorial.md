@@ -11,7 +11,7 @@ tags:
 draft: false
 ---
 
-![用 HyperFrames + Claude Code + fal TTS 做一支 4:32 的 Mac 教學影片](blog/attachments/hyperframes-mac-tutorial-hero.png)
+![用 HyperFrames + Claude Code + fal TTS 做一支 4:32 的 Mac 教學影片](attachments/hyperframes-mac-tutorial-hero.png)
 
 > [!info] 本文由來
 > 這是一份由 **Claude Code** 整理的草稿，內容尚未經作者人工審稿，可能有不準確的地方。本文有兩個版本，v1 寫於 105 秒成品時，v2 在 4:32 成品時把後段擴寫進來，所以前 8 節描述初版過程，第 9 節以後是後續迭代。
