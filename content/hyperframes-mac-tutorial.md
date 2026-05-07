@@ -8,7 +8,7 @@ tags:
   - ai-practice
   - dev
   - hyperframes
-draft: true
+draft: false
 ---
 
 ![用 HyperFrames + Claude Code + fal TTS 做一支 4:32 的 Mac 教學影片](blog/attachments/hyperframes-mac-tutorial-hero.png)
