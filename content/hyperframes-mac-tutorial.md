@@ -2,7 +2,7 @@
 title: 用 HyperFrames + Claude Code + fal TTS 做一支 4:32 的 Mac 教學影片
 date: 2026-05-07
 description: 從一篇 Mac 教學節目的腳本逐字稿，做出一支 4 分 32 秒、17 個 sub-scene、含旁白、含 63 段語意分組字幕、套品牌色、含章節過場的影片。記錄怎麼用 HyperFrames 把 HTML/CSS 當作影片合成語言，從 v1 (105 秒) 改到 v2 (272 秒) 的整段 vibe coding 過程，踩到 GSAP from() 多元素陷阱、HyperFrames render 期 nth-child selector fail、CSS shrink-to-fit 對 absolute 元素的限制等坑。
-image: blog/attachments/hyperframes-mac-tutorial-hero.png
+image: attachments/hyperframes-mac-tutorial-hero.png
 tags:
   - vibe-coding
   - ai-practice
