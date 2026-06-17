@@ -1,7 +1,7 @@
 ---
-title: 用 HyperFrames + Claude Code + fal TTS 做一支 4:32 的 Mac 教學影片
+title: 用 HyperFrames + Claude Code + fal TTS 做一支 4:36 的 Mac 教學影片
 date: 2026-05-07
-description: 從一篇 Mac 教學節目的腳本逐字稿，做出一支 4 分 32 秒、17 個 sub-scene、含旁白、含 63 段語意分組字幕、套品牌色、含章節過場的影片。記錄怎麼用 HyperFrames 把 HTML/CSS 當作影片合成語言，從 v1 (105 秒) 改到 v2 (272 秒) 的整段 vibe coding 過程，踩到 GSAP from() 多元素陷阱、HyperFrames render 期 nth-child selector fail、CSS shrink-to-fit 對 absolute 元素的限制等坑。
+description: 從一篇 Mac 教學節目的腳本逐字稿，做出一支 4 分 36 秒、含旁白、含 63 段語意分組字幕、套品牌色、含章節過場 + 片尾 stinger 的影片。記錄怎麼用 HyperFrames 把 HTML/CSS 當作影片合成語言，從 v1 (105 秒) 到 v2 (272 秒) 到 v3 (276 秒) 三輪迭代的整段 vibe coding 過程，踩到 GSAP from() 多元素陷阱、HyperFrames render 期 nth-child selector fail、CSS shrink-to-fit 對 absolute 元素的限制、Mac mockup 深色/淺色配色 trade-off、ProRes preview 不顯示等坑。
 image: attachments/hyperframes-mac-tutorial-hero.png
 tags:
   - vibe-coding
@@ -11,14 +11,14 @@ tags:
 draft: false
 ---
 
-![用 HyperFrames + Claude Code + fal TTS 做一支 4:32 的 Mac 教學影片](attachments/hyperframes-mac-tutorial-hero.png)
+![用 HyperFrames + Claude Code + fal TTS 做一支 4:36 的 Mac 教學影片](attachments/hyperframes-mac-tutorial-hero.png)
 
 > [!info] 本文由來
-> 這是一份由 **Claude Code** 整理的草稿，內容尚未經作者人工審稿，可能有不準確的地方。本文有兩個版本，v1 寫於 105 秒成品時，v2 在 4:32 成品時把後段擴寫進來，所以前 8 節描述初版過程，第 9 節以後是後續迭代。
+> 這是一份由 **Claude Code** 整理的草稿，內容尚未經作者人工審稿，可能有不準確的地方。本文有三個版本，v1 寫於 105 秒成品時，v2 在 4:32 成品時擴寫，v3 在 4:36 教學優化版加上後續迭代。前 8 節描述 v1，第 9-16 節是 v2，第 17 節以後是 v3 的教學導向修改。
 >
 > 整理依據，
 >
-> - 工作目錄 `~/claude/hyperframes-projects/hyperframes-test/`，包含 `index.html`、17 段 narration mp3、`design.md`、`assets/narration/semantic_captions.py`、最終 render mp4
+> - 工作目錄 `~/claude/hyperframes-projects/mac-tutorial/`，包含 `index.html`、17 段 narration mp3、`design.md`、`assets/narration/semantic_captions.py`、最終 render mp4
 > - Claude Code session 紀錄，`~/.claude/projects/-Users-jaschiang-claude----/`，含 6 條從這次工作累積出的長期記憶（HyperFrames 多場景設計、品牌 palette 取色與套用、GSAP from() 多元素陷阱、配圖一律走 codex CLI、HyperFrames render 期 nth-child fail、字幕內容對齊視覺）
 > - 三條 user-level skill 從專案記憶提煉出來放到 `~/.claude/skills/`，跨資料夾都能讀到（HyperFrames 跨專案規範、品牌規範、blog 寫作規範）
 > - Codex CLI session 紀錄，`~/.codex/sessions/2026/05/06/` 第一輪 mockup 圖生成、`~/.codex/sessions/2026/05/07/` hero 圖生成
@@ -493,6 +493,124 @@ Capturing frame 8160/8160 (4 workers)
 
 272 秒 × 30fps = 8160 frames，render 完約 14 分鐘，最終 mp4 28 MB、1920×1080、h264 + aac。比 v1 影片長 2.6 倍但檔案只大 2.4 倍，因為靜止畫面多 + Mac mockup 是純 HTML/CSS 沒視訊壓縮負擔。
 
+## 第三輪，教學優化導向
+
+v2 拿給人看完發現一個問題，**工程做得不錯但教學效果普通**。例如旁白唸到「指標周圍出現黑色圓圈」，畫面只是把那段文字寫在 bullet list 裡，沒實際 demo。每個動作要有「對應視覺」呼應，呈現實際 macOS 真實樣貌，內容才完整不破碎。第三輪整個重做視覺層。
+
+### 17. Mac mockup 從深色換淺色（macOS Sonoma 風）
+
+原本 mockup bg 是 `#1f2814 → #0e0e0e → #000` 暗綠黑漸層，跟 scene 黑底融在一起對比差，視覺上「Mac 螢幕」跟「外框舞台」沒區分。
+
+換成 macOS Sonoma 桌布的冷藍灰，
+
+```css
+.mac-mockup {
+  background: linear-gradient(165deg, #d4dce8 0%, #b8c4d4 50%, #8e9aac 100%);
+}
+```
+
+連帶調整，
+
+- menubar `rgba(245,245,247,0.85)` 淺色 + 深色文字
+- mac-window 白底 0.96 + 淺灰 titlebar + 深灰文字
+- dock 白色玻璃 + 飽和品牌色 icons（綠／藍／橘）
+- mac-grid 白線改深色淡格線
+- screenshot-thumb 同步淺色化
+- popover、context menu、screenshot toolbar **維持深色**（macOS 系統下這些原本就是 frosted dark glass）
+
+整支影片視覺現在是**「黑色外框舞台 + 淺色 Mac 螢幕內容」**的 layered 結構，跟真實看 Mac 螢幕的視覺一致。
+
+順帶修了兩個 macOS 真實感小坑，
+
+**紅綠燈圖示橫排**。原本 `.traffic span` 用 `display: block` 變成垂直堆疊，`display: inline-block + flex parent` 才橫排。
+
+**視窗高亮從 ring 改成整片藍色 overlay**。⇧⌘4+Space 在真實 macOS 是把整片視窗用半透明藍蓋上，不是只圍邊。改 `::after` pseudo-element 蓋滿整片，
+
+```css
+.mac-window.highlighted::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(10,132,255,0.32);
+  pointer-events: none;
+  z-index: 10;
+}
+```
+
+### 18. 拿掉 Ken Burns，改成內容對齊動畫
+
+v2 的 Ken Burns 緩推（每個 mockup `scale: 1 → 1.05` linear over scene duration）是**通用裝飾**，跟教學內容無關。拿掉，每個 scene 換成跟旁白同步的具體動作。
+
+- **s3 ⇧⌘3** 拍照閃光（白光蓋滿 mockup 0.06s peak）→ 縮覽圖往**右邊**滑出（不是右下對角，符合真實 macOS）→ 桌面右上角浮現 `Screenshot 14.30.png` 檔案 icon
+- **s4 ⇧⌘4** 十字游標**跟著選取拉開**從左上角移到右下角（leading point），拖完閃光 + 縮覽圖出現
+- **s5 ⇧⌘4 → Space** 鍵按下時序，⇧⌘4 三鍵幾乎同時（press 時間 77.0/77.3/77.6）→ 停 →  Space 獨立後按（82.0），用動畫講清楚「先後不是同時」
+- **s6 ⇧⌘5** 工具列從**底部滑上來**（y: 220 → 0），對應旁白「打開工具列」
+- **s6c Control + 左鍵** 完整序列，cursor 移到 thumb → Control 按下 → menu 浮現，不再 scene 開頭就全部出現
+- **s8 click-pulse** 真的有 cursor + 兩道擴散黑圓圈呼應「點按時周圍出現黑色圓圈」，不只是文字 bullet
+
+GSAP timing 全用 silencedetect 從旁白 mp3 抓出實際語音邊界，每個動作 lead 0.1 到 0.3 秒於對應旁白文字。
+
+### 19. 縮覽圖要反映實際截取結果
+
+v2 的縮覽圖是**通用 mini mockup**，不管什麼快捷鍵都長一樣。v3 改成反映實際截取的內容，
+
+**s3 ⇧⌘3 整螢幕的縮覽圖**鏡像 s3 桌面排列。Notes 視窗在左上（小框）+ Safari 在中右（大框）+ 跟桌面一樣部分重疊 + 上下含 menubar 跟 dock。
+
+**s4 ⇧⌘4 區域選取的縮覽圖**只呈現「選取範圍內的內容」，不含 menubar 跟 dock（不在選取裡），左邊是 Notes 視窗 body 切片（無紅綠燈，因為 Notes titlebar 不在選取裡），右邊主體是 Safari 視窗（含紅綠燈 titlebar + 內容）。
+
+```
+selection: top:90 left:200 w:320 h:200
+- Notes 範圍切到: 200-250 (50px wide) of body, 不含 titlebar
+- Safari 範圍切到: 240-520 of titlebar + body, 含紅綠燈
+```
+
+新手看就懂「⇧⌘3 截全部」vs「⇧⌘4 截一塊」的差異從成品就能看到。
+
+### 20. 教學細節 polish
+
+零碎但都有教學意義的小修，
+
+- **結尾加 cheat sheet 4 組快捷鍵總覽**（2×2 卡片排版），把整支講過的 7 組組合濃縮成「⇧⌘3 截全螢幕」「⇧⌘4 自由選取」「⇧⌘5 截圖 App / 錄影」「⌘⌃Esc 停止錄影」4 組記憶點
+- **s6c desc 加「= 右鍵選單」**註記。Mac 新手不知道 Control + 左鍵 就是右鍵，補一行視覺註解
+- **s8「選項」設定四件事**從兩行（含 `<br>`）改單行，文字節奏跟視覺都更俐落
+- **s7b 鍵順序對齊旁白**。原本畫面是 `⌃ + ⌘ + Esc`，但旁白唸「Command、Control、Esc」順序不一樣。修為 `⌘ + ⌃ + Esc`，press 動畫時間 200.7 / 202.1 / 202.8 對齊語音段
+- **s7 → s7b 死空氣修掉**。s7a 旁白結束在 188.9，s7b 開始在 194.5，中間 5.6 秒沒聲音很尷尬。s7 縮 21s 到 17s，gap 變 1.6 秒
+- **「按一下就能結束錄影」字幕** silencedetect 抓錯邊界給了 0.35 秒，肉眼來不及讀。實測語音 198.94 到 200.40，拉到 1.46 秒
+- **s9 Apple TV 黑畫面 demo**新增。旁白說「拍出來會是黑畫面」，畫面以前只有純文字。加一個小 Apple TV 視窗 + 紅 ⊘ + 「截圖被封鎖」標籤
+- **拖曳的十字游標**過去靜止在右下角，現在跟著選取框從左上角拉到右下角（leading point 隨 selection scale 0→1）
+
+中間還繞了一圈 ch4「小提醒」章節卡，新增了 + 跑完發現 4:32 → 4:37 反而拖節奏，跟 s9 內容重複，砍掉省 7.5 秒。
+
+### 21. 品牌 overlay + 片尾 stinger
+
+最後兩件「上架前」的事，
+
+**全片左上角持續顯示品牌 logo**。1920×1080 透明 PNG，整張蓋上 `<img>` clip。但中間 logo bumper 期間（15-23.5s）疊上去會跟 bumper 動畫衝突，所以拆兩段，
+
+```html
+<img id="brand-overlay-pre"  data-start="0"    data-duration="15"  ... />
+<img id="brand-overlay-post" data-start="23.5" data-duration="247" ... />
+```
+
+**片尾接 5.9 秒 stinger**。`assets/jingle.mov` 是 ProRes 1920×1080 + PCM 音軌，5.9 秒，公司品牌動畫。直接 video clip + audio clip 接在 s9b 結束後。
+
+```html
+<video id="jingle-video" data-start="270.5" data-duration="5.9" ...
+       src="assets/jingle.mov" muted playsinline></video>
+<audio id="jingle-audio" data-start="270.5" data-duration="5.9" ...
+       src="assets/jingle.mov" data-volume="1"></audio>
+```
+
+**踩到一個 ProRes preview 不顯示的坑**。HyperFrames preview server 用瀏覽器播 video，瀏覽器解不了 ProRes，所以 preview 看不到 jingle 畫面只聽得到聲音。一度以為壞了，後來實測 ffmpeg render 沒事（headless 是 ffmpeg 在 decode），最終 mp4 jingle 視覺正常。
+
+### 22. v3 Render
+
+```
+Capturing frame 8295/8295 (4 workers)
+```
+
+276.5 秒 × 30fps = 8295 frames，render 完約 12 分鐘，最終 mp4 **29 MB、1920×1080、h264 + aac、4:36**。比 v2 多了品牌 overlay + jingle 但檔案大小幾乎不變，因為大部分畫面靜止 + 純 HTML/CSS 構成沒視訊壓縮負擔。
+
 ## 整段下來學到什麼
 
 **HyperFrames 把影片合成變成一個前端工作**。我可以用熟悉的 HTML / CSS / GSAP 的肌肉記憶寫，不用學 After Effects 的 expression 或 Motion 的 keyframe。改一個顏色就是 search & replace，改一段時序就是改 `data-start`，加一個元素就是寫一個 div。
@@ -509,32 +627,40 @@ Capturing frame 8160/8160 (4 workers)
 
 **Project memory 升級成 user-level skill**。當你在多個資料夾做同類型工作（不只一個 HyperFrames 專案、不只一個品牌的內容），把累積的規範從專案記憶提煉成 `~/.claude/skills/<name>/SKILL.md`，下次在其他資料夾也讀得到。這次提了三條 skill 出來。
 
+**工程做完不等於教學做完**。v2 lint 0 errors、render 順利、字幕對齊、動畫流暢，但 v3 才意識到「靜態的 4 件事 bullet」跟「動態的 click pulse demo」對新手吸收度差很多。每個旁白裡描述具體動作的句子（「點按時黑色圓圈」「相機指標」「拖曳邊線」「右下角縮覽圖」），畫面都該有對應 demo。看似多此一舉的視覺呼應其實是教學影片的本職。
+
+**所有裝飾都該服務內容**。Ken Burns 在 v2 像是「我有做動畫」的補丁，但跟教學沒關係。拿掉之後每個動作都有意義，反而視覺更豐富。減法比加法重要。
+
+**ProRes preview ≠ render output**。瀏覽器無法解 ProRes，但 ffmpeg 可以。Studio preview 看到「沒畫面只有聲音」不代表 render 出來會壞。final mp4 要看才知道。
+
 ## 整支影片結構
 
-最終 v2 版本的 timeline，
+最終 v3 版本的 timeline，
 
 ```
-0:00.0 — 0:15.0   s1    片頭（15s）
-0:15.0 — 0:23.5   logo  公司 logo bumper + 原音
-0:23.5 — 0:33.0   s2    章節 01，拍攝截圖（白底綠金屬橫幅）
-0:33.0 — 0:54.0   s3    ⇧⌘3 整個螢幕（Mac 桌面 + 縮覽圖彈出 + 自動存檔）
-0:54.0 — 1:12.0   s4    ⇧⌘4 部分螢幕，起手（十字游標 + 拖曳）
-1:12.0 — 1:25.5   s4b   ⇧⌘4 進度／放開（座標讀數 + 縮覽圖）
-1:25.5 — 1:51.5   s5    ⇧⌘4+space 單一視窗（macOS 藍高亮 + 相機指標）
-1:51.5 — 1:58.0   s5b   放開存檔（縮覽圖落到桌面）
-1:58.0 — 2:05.5   ch2   章節 02，截圖 App
-2:05.5 — 2:18.5   s6    ⇧⌘5 工具列開啟
-2:18.5 — 2:30.5   s6b   五顆按鈕順序綠光呼吸
-2:30.5 — 2:43.5   s6c   選項浮層（計時器、儲存位置、滑鼠指標）
-2:43.5 — 2:53.5   ch3   章節 03，螢幕錄影
-2:53.5 — 3:14.5   s7    錄影模式（整個螢幕 / 所選部分 + 拖曳手把）
-3:14.5 — 3:33.5   s7b   CMD 解說（按鍵 press + ring flash）
-3:33.5 — 4:00.5   s8    錄影設定（Options 浮層四項 + 停止快捷鍵）
-4:00.5 — 4:11.5   s9    小提醒
-4:11.5 — 4:31.5   s9b   結尾
+0:00.0 — 0:15.0    s1    片頭（15s）
+0:15.0 — 0:23.5    logo  公司 logo bumper + 原音（無 brand overlay）
+0:23.5 — 0:33.0    s2    章節 01，拍攝截圖（白底綠金屬橫幅）
+0:33.0 — 0:54.0    s3    ⇧⌘3 整螢幕（拍照閃光 + 縮覽圖右滑 + 桌面 .png 檔案）
+0:54.0 — 1:12.0    s4    ⇧⌘4 部分螢幕，十字游標跟著選取拉開（Sonoma 淺色桌布）
+1:12.0 — 1:25.5    s4b   Space 移動 / Esc 取消
+1:25.5 — 1:51.5    s5    ⇧⌘4+space 單一視窗（整片半透明藍 overlay + 相機指標）
+1:51.5 — 1:58.0    s5b   +Option 沒陰影對比
+1:58.0 — 2:05.5    ch2   章節 02，截圖 App
+2:05.5 — 2:18.5    s6    ⇧⌘5 工具列從底滑上
+2:18.5 — 2:30.5    s6b   五顆按鈕順序綠光呼吸
+2:30.5 — 2:43.5    s6c   Control + 左鍵 → menu（cursor 移到 thumb 才浮現）
+2:43.5 — 2:53.5    ch3   章節 03，螢幕錄影
+2:53.5 — 3:10.5    s7    錄影模式（兩種模式 + 拖曳手把脈動）
+3:10.5 — 3:29.5    s7b   ⌘⌃Esc 停止 + 按鍵 press 同步旁白
+3:29.5 — 3:56.5    s8    錄影設定（4 項 + click pulse 黑圓圈 demo）
+3:56.5 — 4:05.5    s9    Apple TV 黑畫面提醒
+4:05.5 — 4:10.5    cs    cheat sheet 4 組快捷鍵總覽（2×2 卡片）
+4:10.5 — 4:30.5    s9b   結尾 + Like / Subscribe
+4:30.5 — 4:36.4    jingle 公司 stinger（品牌 logo + slogan）
 ```
 
-旁白都是 Charon voice 的繁中講解，跟畫面節拍對齊，63 段字幕同步在底部。
+旁白都是 Charon voice 的繁中講解，63 段字幕用 silencedetect 對齊到 speech segment 起點，左上角全程顯示品牌 logo（除 logo bumper + jingle 期間）。
 
 ## 結語
 
@@ -543,16 +669,20 @@ Capturing frame 8160/8160 (4 workers)
 - 拿到任何腳本逐字稿，拆 scene，寫 HTML，畫面長度配合旁白不是反過來
 - 抽品牌 logo 主色，寫 design.md，套到所有 token
 - 章節 banner 用 reusable `.scene-banner` class
-- Mac UI 或任何 UI 模擬都用 HTML/CSS（不要塞 PNG）
+- Mac UI 或任何 UI 模擬都用 HTML/CSS（不要塞 PNG），淺色 mockup + 黑色外框舞台對比清楚
 - TTS 用 fal-ai/gemini-3.1-flash-tts 直接 Claude Code 跑
 - 字幕手刻語意分組，timing 用 ffmpeg silencedetect 對齊 speech segment 起點
 - Per-element 動畫用唯一 class／ID，不用 `:nth-child`
 - 字幕容器 `width: max-content; max-width: NNN`，不要只設 max-width
-- 內容對齊視覺，旁白提到的顏色／icon 要在畫面真的有
+- 內容對齊視覺，旁白提到的顏色／icon／動作要在畫面真的有對應 demo
+- 縮覽圖反映實際截取結果（全螢幕鏡像桌面、區域選取只有選取範圍內容）
+- 結尾加 cheat sheet 整理快捷鍵，新手記憶點
+- 品牌 overlay 整支顯示 + 片尾 stinger 跟 logo bumper 同層級
+- ProRes 視訊在 preview 看不到，render 用 ffmpeg 才正確 — final mp4 一定要看
 - render 之前 `npx hyperframes lint && npx hyperframes inspect` 把錯誤掃乾淨
 - render 完逐幀驗證關鍵動畫，不能只看 Studio preview
 
-從這次 4:32 影片的迭代估，下次同類型教學從拿到腳本到出 mp4 大約 3 到 4 小時，含旁白與字幕設計。
+從這次三輪迭代估，下次同類型教學從拿到腳本到出 mp4 大約 3 到 5 小時，含旁白、字幕、教學優化。**實際手敲操作約 3 小時**（其餘為等 render 跟 TTS 跑完的時間，可同步做其他事）。
 
-> 這支影片的最終 mp4，4 分 32 秒、1920×1080、h264 + aac、28 MB。
-> 整個專案的決策軌跡都讓 Claude Code 整理在 `~/claude/hyperframes-projects/hyperframes-test/`，包括 `design.md`、6 條長期記憶、3 條 user-level skill。
+> 這支影片的最終 mp4，**4 分 36 秒、1920×1080、h264 + aac、29 MB**。
+> 整個專案的決策軌跡都讓 Claude Code 整理在 `~/claude/hyperframes-projects/mac-tutorial/`，包括 `design.md`、6 條長期記憶、3 條 user-level skill。
