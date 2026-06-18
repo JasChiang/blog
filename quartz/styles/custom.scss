@@ -25,3 +25,15 @@
     padding-left: 0.6rem;
   }
 }
+
+// 平板寬度（800–1200px，含直式螢幕）修正：左側欄裝的 TOC 只在桌機顯示，
+// 平板下被隱藏卻仍佔住 320px，把內容往右推。這裡把左欄收掉、改單欄置中。
+@media all and (min-width: 800px) and (max-width: 1200px) {
+  #quartz-body {
+    grid-template-columns: auto !important;
+    grid-template-areas: "grid-center" !important;
+  }
+  #quartz-body > .sidebar.left {
+    display: none !important;
+  }
+}
