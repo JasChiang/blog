@@ -218,7 +218,7 @@ draft: false
 - **EnGenius 活動頁設計示意**
 - **活動頁調整備註器**
 - **AI 入門課程對外版**
-- **UTM 網址與短網址產生器**：[https://jaschiang.github.io/marketing/](https://jaschiang.github.io/marketing/)
+- **UTM 網址與短網址產生器**
 
 ![實際案例 — 活動頁設計](attachments/case-engenius.png)
 

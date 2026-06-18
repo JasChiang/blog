@@ -7,7 +7,7 @@ tags:
   - marketing
   - vibe-coding
 image: attachments/marketing-rpg-hero-v13.png
-draft: false
+draft: true
 ---
 
 ![marketing-rpg hero](attachments/marketing-rpg-hero-v13.png)
