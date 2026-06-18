@@ -17,9 +17,9 @@ draft: false
 >
 > 整理依據：
 >
-> - GitHub repo, `article-suite`（private repo）的 README、CHANGELOG、commit 歷史與原始碼
-> - Claude Code 工作 session 紀錄, `~/.claude/projects/` 中 2026/05–06 的 article-suite session
-> - Codex CLI 工作 session 紀錄, `~/.codex/sessions/`（2026/05–06 用 Codex 做複查的幾次 session）
+> - GitHub repo，`article-suite`（private repo）的 README、CHANGELOG、commit 歷史與原始碼
+> - Claude Code 工作 session 紀錄，`~/.claude/projects/` 中 2026/05–06 的 article-suite session
+> - Codex CLI 工作 session 紀錄，`~/.codex/sessions/`（2026/05–06 用 Codex 做複查的幾次 session）
 >
 > 這是 [[article-suite|前一篇 article-suite 開發記]] 的續篇，接續 4 月底那篇之後的故事。
 >

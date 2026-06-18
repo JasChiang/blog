@@ -17,7 +17,7 @@ draft: false
 >
 > 整理依據，
 >
-> - GitHub repo, [JasChiang/seo-content-generator](https://github.com/JasChiang/seo-content-generator) 的 README、commit 歷史與原始碼
+> - GitHub repo，[JasChiang/seo-content-generator](https://github.com/JasChiang/seo-content-generator) 的 README、commit 歷史與原始碼
 > - Codex CLI 開發 session 紀錄（2026/01）
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。

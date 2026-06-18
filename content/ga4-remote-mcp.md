@@ -17,9 +17,9 @@ draft: false
 >
 > 整理依據，
 >
-> - GitHub repo, [JasChiang/ga4-remote-mcp](https://github.com/JasChiang/ga4-remote-mcp) 的 README、commit 歷史與原始碼
-> - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-claude-----ga4-remote-mcp/`
-> - Codex CLI session 紀錄, `~/.codex/sessions/` 中與 ga4-remote-mcp 相關的幾個 session（2026-03-31、2026-04-10、2026-04-13）
+> - GitHub repo，[JasChiang/ga4-remote-mcp](https://github.com/JasChiang/ga4-remote-mcp) 的 README、commit 歷史與原始碼
+> - Claude Code 工作 session 紀錄，`~/.claude/projects/-Users-jaschiang-claude-----ga4-remote-mcp/`
+> - Codex CLI session 紀錄，`~/.codex/sessions/` 中與 ga4-remote-mcp 相關的幾個 session（2026-03-31、2026-04-10、2026-04-13）
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 

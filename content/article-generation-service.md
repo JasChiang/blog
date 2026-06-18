@@ -17,8 +17,8 @@ draft: false
 >
 > 整理依據，
 >
-> - GitHub repo, `article-generation-service`（private repo）的 README（若有）、commit 歷史與原始碼
-> - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-Documents-GitHub-article-generation-service/`
+> - GitHub repo，`article-generation-service`（private repo）的 README（若有）、commit 歷史與原始碼
+> - Claude Code 工作 session 紀錄，`~/.claude/projects/-Users-jaschiang-Documents-GitHub-article-generation-service/`
 > - Codex CLI session 紀錄，主要集中在 2026-01-16（由 `ai-video-writer` 拆出這個 repo 的工作階段）；1/27 的 session 的工作目錄是 `article-suite`，不是這個 repo
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。

@@ -300,7 +300,7 @@ GitHub Pages root 那個 `jaschiang.github.io` repo 改成單張 `index.html` �
 
 ### vibe coding 真正改變的是哪些事可以順手做
 
-這個 blog 改造，如果在沒有 vibe coding 之前，「想做」跟「真的去做」之間的成本是 GitHub Actions 設定、Cloudflare 還是 Vercel 的選擇、Quartz 怎麼自訂...一堆要學的。
+這個 blog 改造，如果在沒有 vibe coding 之前，「想做」跟「真的去做」之間的成本是 GitHub Actions 設定、Cloudflare 還是 Vercel 的選擇、Quartz 怎麼自訂……一堆要學的。
 
 有了 Claude Code + Codex CLI，**這些變成可以順手做的事**。半天到一天能搞定的事，以前可能拖一個月。
 

@@ -14,7 +14,7 @@ draft: false
 > [!info] 本文由來
 > 這篇是整理自 GitHub repo 的 commit 歷史、原始碼，以及開發過程中的 Codex CLI session 紀錄，由 Claude Code 協助結構化成文章後審稿發布。
 >
-> - GitHub repo, [JasChiang/image-tool](https://github.com/JasChiang/image-tool)
+> - GitHub repo，[JasChiang/image-tool](https://github.com/JasChiang/image-tool)
 > - Codex CLI session 紀錄，2026-04-16
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。

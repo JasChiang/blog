@@ -17,9 +17,9 @@ draft: false
 >
 > 整理依據，
 >
-> - GitHub repo, [JasChiang/article-suite](https://github.com/JasChiang/article-suite) 的 README（若有）、commit 歷史與原始碼
-> - Claude Code 工作 session 紀錄, `~/.claude/projects/-Users-jaschiang-Documents-GitHub-article-suite/`
-> - Codex CLI 工作 session 紀錄, `~/.codex/sessions/`（2026/02–04 的 article-suite 相關 session）
+> - GitHub repo，[JasChiang/article-suite](https://github.com/JasChiang/article-suite) 的 README（若有）、commit 歷史與原始碼
+> - Claude Code 工作 session 紀錄，`~/.claude/projects/-Users-jaschiang-Documents-GitHub-article-suite/`
+> - Codex CLI 工作 session 紀錄，`~/.codex/sessions/`（2026/02–04 的 article-suite 相關 session）
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
 

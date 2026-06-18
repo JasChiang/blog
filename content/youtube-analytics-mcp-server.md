@@ -17,7 +17,7 @@ draft: false
 >
 > 整理依據，
 >
-> - GitHub repo, `youtube-analytics-mcp-server`（private repo）的 README（若有）、commit 歷史與原始碼
+> - GitHub repo，`youtube-analytics-mcp-server`（private repo）的 README（若有）、commit 歷史與原始碼
 > - Codex CLI session（2026-02-05），記錄了 MCP server 實際使用中踩到的 API 坑與後續功能補充
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。

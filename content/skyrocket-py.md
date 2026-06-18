@@ -20,7 +20,7 @@ draft: true
 
 朋友前幾天傳給我一個 Windows app 叫 SkyrocketSimulator，說作者寫得不錯，叫我可以拿來試試看。我打開資料夾看了下，主程式 + 一支 358KB 的 `StockLibrary.dll` + 一個 800MB 的 `data.bin`。光看大小就知道，這份 `.bin` 才是這套工具的核心，DLL 是表演用的殼。
 
-實際打開來跑，介面也算清楚，有六套作者私房策略 (底部季線突破 / 高檔整理 v11 / 整理起漲 v1 / 大盤抄底 / 持有元大台灣 50 / 底部月線突破)，有資金分配、有風控、有 paper trade。然後我做了第一件「好像很無聊但其實很重要」的事，**我去看 data.bin 的最後一筆 K 棒是哪一天**。
+實際打開來跑，介面也算清楚，有六套作者私房策略（底部季線突破 / 高檔整理 v11 / 整理起漲 v1 / 大盤抄底 / 持有元大台灣 50 / 底部月線突破），有資金分配、有風控、有 paper trade。然後我做了第一件「好像很無聊但其實很重要」的事，**我去看 data.bin 的最後一筆 K 棒是哪一天**。
 
 ```
 2025-12-31
@@ -30,7 +30,7 @@ draft: true
 
 當下我只有一個念頭，**這套東西不能拿來當下選股**。它能告訴我的最新訊號永遠是 2025/12/31 那天的，等於拿著 4 個月前的舊報紙下單。
 
-但策略架構看起來還是有東西，多策略並聯 + 三條帳戶層級警報線 (空方波段 / 日 KD 死叉 / 週 KD 死叉) 強制清倉這個風控設計挺乾淨。我想搞清楚作者怎麼想的，然後自己做一套**接即時資料**的版本。
+但策略架構看起來還是有東西，多策略並聯 + 三條帳戶層級警報線（空方波段 / 日 KD 死叉 / 週 KD 死叉）強制清倉這個風控設計挺乾淨。我想搞清楚作者怎麼想的，然後自己做一套**接即時資料**的版本。
 
 ## 第一個關鍵發現，作者的演算法不在 DLL 裡
 
@@ -53,7 +53,7 @@ public virtual double CalculateRating(StockData sd, int idx)
 
 1. 作者在自己機器上有一支沒釋出的「批次計算工具」，跑作者私房演算法
 2. 把全市場 2,234 檔股票 × 7 套策略 × 6,000 個交易日的訊號全部算出來
-3. 連同 OHLCV、除權息、減資資料一起包進 data.bin (約 800MB)
+3. 連同 OHLCV、除權息、減資資料一起包進 data.bin（約 800MB）
 4. 把 data.bin + 一個只會 lookup 的 DLL 一起發布
 
 **所以即使我把這份 DLL 完整拆開來看，也拿不到作者的真實打分公式**。我只能拿到他預先算好的「結果」，無法拿到「過程」。
@@ -119,9 +119,9 @@ Header
 
 ### 資料源，FinMind 免費版 vs 升級
 
-FinMind 免費版限制 600 req/hr，**還權後價** (`TaiwanStockPriceAdj`) 是付費 endpoint，我們只能用 raw price (`TaiwanStockPrice`)。
+FinMind 免費版限制 600 req/hr，**還權後價**（`TaiwanStockPriceAdj`）是付費 endpoint，我們只能用 raw price（`TaiwanStockPrice`）。
 
-代價是除權息日會出現「人工跳空」，指標會誤判。但對「相對比較」沒影響 (我跟作者用同一份 raw 資料)，paper trade 階段先這樣跑。
+代價是除權息日會出現「人工跳空」，指標會誤判。但對「相對比較」沒影響（我跟作者用同一份 raw 資料），paper trade 階段先這樣跑。
 
 升級費用是 NT$699/月，年費約 NT$8,400。對我目前 NT$10 萬的 paper 階段是 8% 的本金純成本。**先不付**。
 
@@ -174,9 +174,9 @@ scout-bootstrap.yml  workflow_dispatch 手動觸發
 
 訊號這邊用三套，
 
-- **底部季線突破** (`ma60_breakout`)，從 MA60 下方反彈站上
-- **高檔整理 v11** (`vcp_consolidation`)，BB 收斂 + 線性回歸 R² 低 + 突破前高
-- **持有 0050** (`hold_0050`)，長期趨勢跟蹤 + KD 死叉退場
+- **底部季線突破**（`ma60_breakout`），從 MA60 下方反彈站上
+- **高檔整理 v11**（`vcp_consolidation`），BB 收斂 + 線性回歸 R² 低 + 突破前高
+- **持有 0050**（`hold_0050`），長期趨勢跟蹤 + KD 死叉退場
 
 每天的 Telegram 訊息長這樣，
 
@@ -228,7 +228,7 @@ scout-bootstrap.yml  workflow_dispatch 手動觸發
 
 ## walk-forward backtest，找到作者的 alpha 在哪
 
-最後我做了一件最有趣的事。把作者的 124 萬筆 BUY 訊號和我自己的訊號都丟進 walk-forward backtest，計算「**買進後 5/10/20/60 天的真實報酬**」，含真實滑價 + 手續費 + 證交稅 (約 0.78% round-trip)。
+最後我做了一件最有趣的事。把作者的 124 萬筆 BUY 訊號和我自己的訊號都丟進 walk-forward backtest，計算「**買進後 5/10/20/60 天的真實報酬**」，含真實滑價 + 手續費 + 證交稅（約 0.78% round-trip）。
 
 跑出來最重要的一條，**作者的 alpha 全部集中在「高檔整理 v11」**，
 
@@ -269,21 +269,21 @@ scout-bootstrap.yml  workflow_dispatch 手動觸發
 
 整個 build 全程用 Claude Code 對話。Claude 寫了大部分的 Python，我做的事只有，
 
-1. 在每個架構決策點告訴它我的偏好 (例如不要 commit DB 回 repo, 不要 Mac 依賴, 用 Telegram 不用 LINE)
-2. 看到結果不對的時候提供反饋 (例如 bot 還沒收 chat_id, R2 chat_id 變成空字串, Markdown 被底線 break, 0050 同期顯示 -33% 是 raw price 沒還權的偏誤)
+1. 在每個架構決策點告訴它我的偏好（例如不要 commit DB 回 repo，不要 Mac 依賴，用 Telegram 不用 LINE）
+2. 看到結果不對的時候提供反饋（例如 bot 還沒收 chat_id，R2 chat_id 變成空字串，Markdown 被底線 break，0050 同期顯示 -33% 是 raw price 沒還權的偏誤）
 3. 處理需要登入帳號的部分 (Cloudflare 註冊、GitHub Secrets、Telegram BotFather)
 
 Claude 表現比較好的部分，
 
 - 一旦給定 spec，把整個 binary parser 寫對
-- 知道要用 R2 而不是直接 commit (我提的, 但它一聽就懂)
+- 知道要用 R2 而不是直接 commit（我提的，但它一聽就懂）
 - 主動提醒「不要過度反應小樣本」「驗證標準應該是 vs 0050 而不是絕對報酬」這種反直覺但對的觀念
 - 寫完後主動建議寫 `CLAUDE.md` 給未來其他 LLM session 看
 
 不太好的部分，
 
 - 第一次傳 token 時要寫進 .env，被 harness 安全機制擋下來，我得自己 paste
-- 不時會 over-engineer (例如我說「順便加個 OTC 支援」它把整個 universe property 重構成「動態載入所有 sub-list」)
+- 不時會 over-engineer（例如我說「順便加個 OTC 支援」它把整個 universe property 重構成「動態載入所有 sub-list」）
 - 過度禮貌，每隔幾個 commit 都要說「真的真的真的收工了」結果繼續被 user 拖去做新東西
 
 整體來說，這種「**有清楚目的、邊界明確、需要量大的 plumbing code**」最適合 vibe coding。我大概省了 80% 的時間。如果是傳統做法，光是把 binary parser 寫對 + 對齊 + debug 大概就要 1 整天。
@@ -302,7 +302,7 @@ Claude 表現比較好的部分，
 [1 年+]          完整年度績效回顧
 ```
 
-整套系統 push 在 `skyrocket-py` (private repo)，code 大約 3,700 行 Python，跑在 Cloudflare R2 + GitHub Actions + Telegram 三個免費服務上，月固定支出 NT$0。
+整套系統 push 在 `skyrocket-py`（private repo），code 大約 3,700 行 Python，跑在 Cloudflare R2 + GitHub Actions + Telegram 三個免費服務上，月固定支出 NT$0。
 
 ## 結語
 

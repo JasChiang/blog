@@ -17,7 +17,7 @@ draft: false
 >
 > 整理依據，
 >
-> - GitHub repo, `banana-context`（private repo）的 README（若有）、commit 歷史與原始碼
+> - GitHub repo，`banana-context`（private repo）的 README（若有）、commit 歷史與原始碼
 > - Codex CLI 開發 session 記錄（2025/11/25、2025/11/28）
 >
 > 文章開頭的 hero 圖由 **Codex CLI 內建的 image_gen 工具**生成（OpenAI gpt-image-2 模型）。
