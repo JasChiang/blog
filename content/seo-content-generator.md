@@ -15,7 +15,7 @@ draft: false
 > [!info] 本文由來
 > 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 整理依據，
+> 整理依據：
 >
 > - GitHub repo，[JasChiang/seo-content-generator](https://github.com/JasChiang/seo-content-generator) 的 README、commit 歷史與原始碼
 > - Codex CLI 開發 session 紀錄（2026/01）

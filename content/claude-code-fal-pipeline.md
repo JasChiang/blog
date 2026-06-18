@@ -15,7 +15,7 @@ draft: false
 > [!info] 本文由來
 > 這是一份由 **Claude Code** 整理的草稿，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 整理依據，
+> 整理依據：
 >
 > - storyboard-system repo `scripts/` 下的 `.mjs` 腳本（4-24 ~ 4-30 共 20+ 支）
 > - Claude Code 在該 repo 的 session 紀錄（`~/.claude/projects/-Users-jaschiang-GitHub-storyboard-system/`），最大那份 4-30 cbf79da7 fal_refs=100

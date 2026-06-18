@@ -16,7 +16,7 @@ draft: false
 > [!info] 本文由來
 > 這是一份由 **Claude Code** 整理的草稿，內容尚未經作者人工審稿，可能有不準確的地方。本文有三個版本，v1 寫於 105 秒成品時，v2 在 4:32 成品時擴寫，v3 在 4:36 教學優化版加上後續迭代。前 8 節描述 v1，第 9-16 節是 v2，第 17 節以後是 v3 的教學導向修改。
 >
-> 整理依據，
+> 整理依據：
 >
 > - 工作目錄 `~/claude/hyperframes-projects/mac-tutorial/`，包含 `index.html`、17 段 narration mp3、`design.md`、`assets/narration/semantic_captions.py`、最終 render mp4
 > - Claude Code session 紀錄，`~/.claude/projects/-Users-jaschiang-claude----/`，含 6 條從這次工作累積出的長期記憶（HyperFrames 多場景設計、品牌 palette 取色與套用、GSAP from() 多元素陷阱、配圖一律走 codex CLI、HyperFrames render 期 nth-child fail、字幕內容對齊視覺）

@@ -15,7 +15,7 @@ draft: false
 > [!info] 本文由來
 > 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 整理依據，
+> 整理依據：
 >
 > - GitHub repo，[JasChiang/internal-link](https://github.com/JasChiang/internal-link) 的 README（若有）、commit 歷史與原始碼
 > - Claude Code 工作 session 紀錄，`~/.claude/projects/-Users-jaschiang-Documents-GitHub-internal-link/`

@@ -15,7 +15,7 @@ draft: false
 > [!info] 本文由來
 > 這篇是 Claude Code 依照 commit 歷史與 session 紀錄整理的開發回顧，由作者對照原始碼審稿校正後發布。
 >
-> 整理依據，
+> 整理依據：
 >
 > - GitHub repo，[JasChiang/ga4-remote-mcp](https://github.com/JasChiang/ga4-remote-mcp) 的 README、commit 歷史與原始碼
 > - Claude Code 工作 session 紀錄，`~/.claude/projects/-Users-jaschiang-claude-----ga4-remote-mcp/`

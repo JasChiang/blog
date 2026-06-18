@@ -15,7 +15,7 @@ draft: false
 > [!info] 本文由來
 > 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 整理依據，
+> 整理依據：
 >
 > - GitHub repo，`youtube-analytics-mcp-server`（private repo）的 README（若有）、commit 歷史與原始碼
 > - Codex CLI session（2026-02-05），記錄了 MCP server 實際使用中踩到的 API 坑與後續功能補充

@@ -15,7 +15,7 @@ draft: false
 > [!info] 本文由來
 > 這是一份由 **Claude Code 整理的草稿**，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 整理依據，
+> 整理依據：
 >
 > - GitHub repo，`banana-context`（private repo）的 README（若有）、commit 歷史與原始碼
 > - Codex CLI 開發 session 記錄（2025/11/25、2025/11/28）

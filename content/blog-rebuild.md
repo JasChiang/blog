@@ -15,7 +15,7 @@ draft: false
 > [!info] 本文由來
 > 這是一份由 **Claude Code** 整理的草稿，內容尚未經作者人工審稿，可能有不準確的地方。
 >
-> 整理依據，
+> 整理依據：
 >
 > - 我與 Claude Code 工作的 session 紀錄（`~/.claude/projects/-Users-jaschiang-Documents-GitHub-blog/`）
 > - 我與 Codex CLI 工作的 session 紀錄（`~/.codex/sessions/2026/04/30/`）
