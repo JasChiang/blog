@@ -615,7 +615,7 @@ Capturing frame 8295/8295 (4 workers)
 
 **HyperFrames 把影片合成變成一個前端工作**。我可以用熟悉的 HTML / CSS / GSAP 的肌肉記憶寫，不用學 After Effects 的 expression 或 Motion 的 keyframe。改一個顏色就是 search & replace，改一段時序就是改 `data-start`，加一個元素就是寫一個 div。
 
-**Claude Code 不是被動工具，是 pair programming agent**。整個過程我跟它的對話比寫 code 多。它會記得你之前說過「配圖一律走 codex CLI」「不要 inline 圖片 card」「公司品牌綠 #a3d942」，下一輪不用再交代。當我提到「過場章節文字太快消失」，它會自己診斷出 GSAP `immediateRender` 的陷阱、給出 ID-scoped 加 fromTo 的修法、並且把這個學到的東西寫進長期記憶。
+**Claude Code 不是被動工具，是 pair programming agent**。整個過程我跟它的對話比寫 code 多。它會記得你之前說過「配圖一律走 codex CLI」「不要 inline 圖片 card」「公司品牌綠 `#a3d942`」，下一輪不用再交代。當我提到「過場章節文字太快消失」，它會自己診斷出 GSAP `immediateRender` 的陷阱、給出 ID-scoped 加 fromTo 的修法、並且把這個學到的東西寫進長期記憶。
 
 **fal 的 TTS 直接 Claude Code 呼叫比走 codex sandbox 簡單**。Codex sandbox 的網路與 env 限制讓它呼叫不到 `fal.run`，但 Claude Code 在本地跑沒有這問題，從 `.env.local` 讀 key、Python urllib 發 POST、下載 mp3，30 秒搞定 11 段。
 
