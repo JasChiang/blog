@@ -26,19 +26,18 @@
   }
 }
 
-// 平板寬度（800–1200px，含直式螢幕）修正：左側欄裝的 TOC 只在桌機顯示，
-// 平板下被隱藏卻仍佔住 320px，把內容往右推。這裡把左欄收掉，並把內容限制成
-// 約 860px 的閱讀欄寬置中（對齊桌機的內容欄寬），避免滿版貼左。
-@media all and (min-width: 800px) and (max-width: 1200px) {
+// 版面置中修正。兩個情境會讓內容偏掉：
+// (1) 首頁：左側欄（TOC）整個空的、右側欄只剩 footer，導致不對稱。
+// (2) 平板寬度（800–1200px，含直式螢幕）：左欄 TOC 只在桌機顯示，被隱藏卻仍佔 320px。
+// 解法都一樣：收掉左欄、把內容欄與右側欄（footer）併進同一個置中的單欄、限同欄寬。
+@mixin single-centered-column {
   #quartz-body {
     grid-template-columns: minmax(0, 1fr) !important;
     grid-template-areas: "grid-center" !important;
   }
-  // 左側欄（只放桌機 TOC）整個收掉
   #quartz-body > .sidebar.left {
     display: none !important;
   }
-  // 內容欄與右側欄（裝 footer）都流進同一個置中的單欄、限同樣欄寬
   #quartz-body > .center,
   #quartz-body > .sidebar.right {
     grid-column: 1 !important;
@@ -48,5 +47,17 @@
     margin-inline: auto;
     box-sizing: border-box;
     padding-inline: 1.5rem;
+  }
+}
+
+// 首頁：任何寬度都單欄置中
+body[data-slug="index"] {
+  @include single-centered-column;
+}
+
+// 其他頁面：平板寬度時單欄置中（桌機保留左 TOC + 右側欄）
+@media all and (min-width: 800px) and (max-width: 1200px) {
+  body {
+    @include single-centered-column;
   }
 }
