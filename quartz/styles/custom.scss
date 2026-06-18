@@ -31,16 +31,21 @@
 // 約 860px 的閱讀欄寬置中（對齊桌機的內容欄寬），避免滿版貼左。
 @media all and (min-width: 800px) and (max-width: 1200px) {
   #quartz-body {
-    grid-template-columns: auto !important;
+    grid-template-columns: minmax(0, 1fr) !important;
     grid-template-areas: "grid-center" !important;
   }
+  // 左側欄（只放桌機 TOC）整個收掉
   #quartz-body > .sidebar.left {
     display: none !important;
   }
-  #quartz-body > .center {
+  // 內容欄與右側欄（裝 footer）都流進同一個置中的單欄、限同樣欄寬
+  #quartz-body > .center,
+  #quartz-body > .sidebar.right {
+    grid-column: 1 !important;
+    grid-area: auto !important;
     max-width: 860px;
-    margin-inline: auto;
     width: 100%;
+    margin-inline: auto;
     box-sizing: border-box;
     padding-inline: 1.5rem;
   }
